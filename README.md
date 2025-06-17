@@ -178,6 +178,10 @@ The application uses MySQL with JPA/Hibernate for data persistence. The database
 ![Party Bill](img/PartyBill.png)
 *Party bill generation and management*
 
+### Party statement
+![Party Bill](img/PartyStatement.png.png)
+*Party bill generation and management*
+
 ### Vehicle Statement
 ![Vehicle Master](img/vehicalStatement.png)
 *Vehicle registration and management interface*
