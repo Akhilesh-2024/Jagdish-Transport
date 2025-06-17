@@ -179,7 +179,7 @@ The application uses MySQL with JPA/Hibernate for data persistence. The database
 *Party bill generation and management*
 
 ### Party statement
-![Party Bill](img/PartyStatement.png.png)
+![Party Bill](img/PartyStatement.png)
 *Party bill generation and management*
 
 ### Vehicle Statement
