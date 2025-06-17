@@ -152,6 +152,37 @@ The application implements Spring Security with:
 
 The application uses MySQL with JPA/Hibernate for data persistence. The database schema is automatically created and updated using Hibernate's `ddl-auto=update` feature.
 
+## Screenshots
+
+### Login Page
+![Login Page](img/Login.png)
+*User login page*
+
+### Dashboard
+![Dashboard](img/Dashboard.png)
+*Main dashboard showing key metrics and recent activities*
+
+### Vehicle Statement
+![Vehicle Management](img/vehicalStatement.png)
+*Vehicle registration and management interface*
+
+### Trip Voucher
+![Trip Voucher](img/TripVoucher.png)
+*Trip voucher creation and tracking*
+
+### Trip Voucher table
+![Trip Voucher](img/TripVoucherTable.png)
+*Trip voucher creation and tracking*
+
+### Party Bill
+![Party Bill](img/partybill.png)
+*Party bill generation and management*
+
+### Vehicle Statement
+![Vehicle Master](img/vehicalStatement.png)
+*Vehicle registration and management interface*
+
+
 ## Contributing
 
 1. Fork the repository
