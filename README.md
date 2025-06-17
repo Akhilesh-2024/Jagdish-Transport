@@ -1,9 +1,5 @@
 # Jagdish Transport Management System
 
-A comprehensive transport management system built with Spring Boot to streamline logistics operations, billing, and vehicle management for transport businesses.
-
-## Overview
-
 Jagdish Transport Management System is a web-based application designed to automate and manage the day-to-day operations of a transport company. The system provides tools for managing vehicles, tracking trips, handling billing and invoicing, and maintaining customer information.
 
 ## Features
@@ -61,13 +57,6 @@ Jagdish Transport Management System is a web-based application designed to autom
 - Lombok for reducing boilerplate code
 - Hibernate Validator for data validation
 
-## Getting Started
-
-### Prerequisites
-- JDK 17 or higher
-- MySQL 8.0 or higher
-- Maven
-
 ### Installation
 
 1. **Clone the repository**
@@ -117,28 +106,6 @@ src/main/java/com/example/JagdishTransport/
 │   └── impl/                # Service implementations
 └── JagdishTransportApplication.java  # Main application class
 ```
-
-## Key Components
-
-### Models
-- Vehicle-related: `VehicleMaster`, `VehicleType`
-- Customer-related: `PartyMaster`, `Location`, `AreaMaster`
-- Transaction-related: `TripVoucher`, `PartyBill`, `PartyBillDetail`
-- User-related: `UserCredential`, `UserProfile`
-
-### Controllers
-- `VehicleMasterController` - Manages vehicle operations
-- `PartyMasterController` - Handles customer management
-- `TripVoucherController` - Manages trip records
-- `PartyBillController` - Handles billing operations
-- `DashboardStatsController` - Provides dashboard statistics
-
-### Services
-- `VehicleMasterService` - Business logic for vehicle operations
-- `PartyMasterService` - Business logic for customer management
-- `TripVoucherService` - Business logic for trip management
-- `PartyBillService` - Business logic for billing operations
-- `MailService` - Handles email notifications
 
 ## Security
 
