@@ -2,6 +2,12 @@
 
 Jagdish Transport Management System is a web-based application designed to automate and manage the day-to-day operations of a transport company. The system provides tools for managing vehicles, tracking trips, handling billing and invoicing, and maintaining customer information.
 
+## Author
+
+<a href="https://github.com/Atharva-2510/Jagdish-Transport/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Atharva-2510/Jagdish-Transport" />
+</a>
+
 ## Features
 
 ### Vehicle Management
