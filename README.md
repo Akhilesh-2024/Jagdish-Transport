@@ -175,7 +175,7 @@ The application uses MySQL with JPA/Hibernate for data persistence. The database
 *Trip voucher creation and tracking*
 
 ### Party Bill
-![Party Bill](img/partybill.png)
+![Party Bill](img/PartyBill.png)
 *Party bill generation and management*
 
 ### Vehicle Statement
