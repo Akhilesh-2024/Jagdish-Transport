@@ -1,0 +1,275 @@
+
+ <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Jagdish Transport Dashboard</title>
+    <meta
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+      name="viewport"
+    />
+    <link
+      rel="icon"
+      href="/assets/img/kaiadmin/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Fonts and icons -->
+    <script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["/assets/css/fonts.min.css"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="assets/css/dashboardstyle.css" />
+    <link rel="stylesheet" href="assets/css/area-master.css" />
+
+    <style>
+      .company-name {
+        font-family: 'Public Sans', sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: 1px;
+        margin: 0;
+      }
+      .company-name .first {
+        color: #177dff; /* Primary blue color */
+      }
+      .company-name .second {
+        color: #ffffff; /* White color */
+      }
+      .company-name .third {
+        color: #ffa534; /* Orange accent color */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a th:href="@{/dashboard}" class="logo"> 
+              <img
+                src="/assets/img/Your_paragraph_text-removebg-preview.png"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="100"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+<div class="sidebar-wrapper scrollbar scrollbar-inner">
+<div class="sidebar-content">
+    <ul class="nav nav-secondary">
+        <li class="nav-item">
+            <a th:href="@{/dashboard}" class="dashboard-btn">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+            </a>
+        </li>
+
+        <!-- Trip Voucher - Moved up after Dashboard -->
+        <li class="nav-item"><a th:href="@{/tripVoucher}"><i class="fas fa-ticket-alt"></i><p>Trip Voucher</p></a></li>
+        
+        <!-- Master Menu -->
+        <li class="nav-item">
+            <a data-bs-toggle="collapse"  href="#master">
+                <i class="fas fa-database"></i>
+                <p>Master</p>
+                <span class="caret"></span>
+            </a>
+            <div class="collapse" id="master">
+                <ul class="nav nav-collapse">
+					<li><a th:href="@{/fromTo}" class="sub-item"><span class="sub-item">From & To Master</span></a></li>
+									<li><a th:href="@{/area-master}" class="sub-item"><span class="sub-item">Area Master</span></a></li>
+									<li><a th:href="@{/vehicle-type-master}" class="sub-item"><span class="sub-item">Vehicle Type Master</span></a></li>
+									<li><a th:href="@{/party-master}" class="sub-item"><span class="sub-item">Party Master</span></a></li>
+									<li><a th:href="@{/vehicle-master}" class="sub-item"><span class="sub-item">Vehicle Master</span></a></li>
+									<li><a th:href="@{/invoice}" class="sub-item"><span class="sub-item">Invoice Number Series</span></a></li>
+									<li><a th:href="@{/billSeries}" class="sub-item"><span class="sub-item">Bill Number Series</span></a></li>
+                </ul>
+            </div>
+        </li>
+
+        <!-- Other Navigation Items -->
+		<li class="nav-item"><a th:href="@{/otherRate}"><i class="fas fa-sliders-h"></i><p>Other Rate Master</p></a></li>
+		<li class="nav-item"><a th:href="@{/partyBill}"><i class="fas fa-file-invoice-dollar"></i><p>Party Bill</p></a></li>
+		<li class="nav-item"><a th:href="@{/partyStatement}"><i class="fas fa-file-invoice"></i><p>Party Statement</p></a></li>
+		<li class="nav-item"><a th:href="@{/vehicleStatement}"><i class="fas fa-truck"></i><p>Vehicle Statement</p></a></li>
+    </ul>
+</div>
+
+</div>
+
+      </div>
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+        
+          <!-- End Navbar -->
+       
+<!-- Content Area -->
+
+    <div class="container">
+        <h1>Area Rate Master</h1>
+        <div class="content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <form id="areaMasterForm">
+                    <!-- The problematic part that needs to be fixed -->
+<div class="form-layout">
+    <div class="form-group">
+        <label for="areaName" style="color: #ffffff;">Area Name:</label>
+        <input type="text" id="areaName" required>
+    </div>
+
+    <div class="form-group">
+        <label for="vehicleType" style="color: #ffffff; ">Vehicle Type:</label>
+        <select id="vehicleType"><option value="">Choose Vehicle Type</option><option value="10 T">10 T</option><option value="20 T">20 T</option><option value="45  T">45  T</option><option value="CH">CH</option></select>
+    </div>
+
+    <div class="form-group">
+        <label for="customVehicleType" style="color: #ffffff; ">Or type custom vehicle type:</label>
+        <input type="text" id="customVehicleType" placeholder="Custom vehicle type...">
+    </div>
+
+    <div class="form-layout full-width">
+        <label for="partyName" style="color: #ffffff;">Party Name:</label>
+        <div class="multiselect-container">
+            <div class="multiselect-header">
+                <div class="multiselect-actions">
+                    <button type="button" class="btn-select" data-select="all">Select All</button>
+                    <button type="button" class="btn-select" data-select="none">Clear All</button>
+                </div>
+                <div class="multiselect-search">
+                    <input type="text" id="partySearch" placeholder="Search parties...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            <div class="multiselect-dropdown">
+                <div class="selected-count" ><span id="selectedCount">0</span> parties selected</div>
+                <div class="multiselect-options" id="partyOptions" >
+                    <!-- Party options will be inserted here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-layout">
+        <div class="form-group">
+            <label for="companyRate" style="color: #ffffff;">Company Freight Rate:</label>
+            <input type="number" id="companyRate" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label for="lorryRate" style="color: #ffffff;">Lorry Freight Rate:</label>
+            <input type="number" id="lorryRate" step="0.01" required>
+        </div>
+
+        <div class="form-group">
+            <label for="areaDate" style="color: #ffffff;">Date:</label>
+            <input type="date" id="areaDate" required>
+        </div>
+    </div>
+    
+
+</div>
+
+                    <div class="form-actions">
+                        <button type="button" id="addAreaBtn">
+                            <i class="fas fa-plus"></i> Add Area
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>No Areas Added</h3>
+                <p>Add your first area rate to get started</p>
+            </div>
+
+            <!-- Table Section -->
+            <div id="tableSection" class="table-section" style="display: none;">
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="areaSearchInput" placeholder="Search areas...">
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <!-- Table will be created dynamically by JavaScript -->
+                    <!-- The table structure is now managed by the fetchAreaData function -->
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Notification element -->
+<div id="notification" class="notification">
+    <div class="notification-content">
+        <i class="fas fa-check-circle"></i>
+        <div class="notification-message" id="notificationMessage">Area rate added successfully!</div>
+        <button class="notification-close" onclick="hideNotification()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+    <script type="text/javascript" src="js/dashboard.js"></script>
+   	   
+	<script type="text/javascript" src="js/area-master.js"></script>
+	
+	<script type="text/javascript" src="js/form-navigation.js"></script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		
+    <!--   Core JS Files   -->
+    <script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+    <!-- Kaiadmin JS -->
+    <script src="/assets/js/kaiadmin.min.js"></script>
+
+    </body>
+    </html>
+ 

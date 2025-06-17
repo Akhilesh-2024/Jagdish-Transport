@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+       <title>Invoice Series Settings</title>
+    <meta
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+      name="viewport"
+    />
+    <link
+      rel="icon"
+      href="/assets/img/kaiadmin/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Fonts and icons -->
+    <script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["/assets/css/fonts.min.css"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" th:href="@{assets/css/invoiceSeries.css}">
+    
+
+    <style>
+      .company-name {
+        font-family: 'Public Sans', sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: 1px;
+        margin: 0;
+      }
+      .company-name .first {
+        color: #177dff; /* Primary blue color */
+      }
+      .company-name .second {
+        color: #ffffff; /* White color */
+      }
+      .company-name .third {
+        color: #ffa534; /* Orange accent color */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a href="#" class="logo">
+              <img
+                src="/assets/img/Your_paragraph_text-removebg-preview.png"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="100"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-mo-re-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+<div class="sidebar-wrapper scrollbar scrollbar-inner">
+<div class="sidebar-content">
+    <ul class="nav nav-secondary">
+        <li class="nav-item">
+            <a th:href="@{/dashboard}" class="dashboard-btn">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+            </a>
+        </li>
+
+        <!-- Trip Voucher - Moved up after Dashboard -->
+        <li class="nav-item"><a th:href="@{/tripVoucher}"><i class="fas fa-ticket-alt"></i><p>Trip Voucher</p></a></li>
+        
+        <!-- Master Menu -->
+        <li class="nav-item">
+            <a data-bs-toggle="collapse" href="#master">
+                <i class="fas fa-database"></i>
+                <p>Master</p>
+                <span class="caret"></span>
+            </a>
+            <div class="collapse" id="master">
+                <ul class="nav nav-collapse">
+                    <li><a th:href="@{/fromTo}"><span class="sub-item">From & To Master</span></a></li>
+                    <li><a th:href="@{/area-master}"><span class="sub-item">Area Master</span></a></li>
+                    <li><a th:href="@{/vehicle-type-master}"><span class="sub-item">Vehicle Type Master</span></a></li>
+                    <li><a th:href="@{/party-master}"><span class="sub-item">Party Master</span></a></li>
+                    <li><a th:href="@{/vehicle-master}"><span class="sub-item">Vehicle Master</span></a></li>
+                    <li><a th:href="@{/invoice}"><span class="sub-item">Invoice Number Series</span></a></li>
+                    <li><a th:href="@{/billSeries}"><span class="sub-item">Bill Number Series</span></a></li>
+                </ul>
+            </div>
+        </li>
+
+		<!-- Other Navigation Items -->
+		    <li class="nav-item"><a th:href="@{/otherRate}"><i class="fas fa-sliders-h"></i><p>Other Rate Master</p></a></li>
+		    <li class="nav-item"><a th:href="@{/partyBill}"><i class="fas fa-file-invoice-dollar"></i><p>Party Bill</p></a></li>
+		    <li class="nav-item"><a th:href="@{/partyStatement}"><i class="fas fa-file-invoice"></i><p>Party Statement</p></a></li>
+		    <li class="nav-item"><a th:href="@{/vehicleStatement}"><i class="fas fa-truck"></i><p>Vehicle Statement</p></a></li>
+    </ul>
+</div>
+
+</div>
+
+      </div>
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+        
+          <!-- End Navbar -->
+
+<!-- load particular container -->
+     <div class="container">
+    
+        <h2>Invoice No. Series Settings</h2>
+        <div class="settings-card">
+            <form id="invoiceForm" th:action="@{/invoice/settings/save}" th:object="${invoiceSettings}" method="post">
+                
+                   
+<div>Auto Mode : <span id="statusMessage" class="status-message"></span> </div>
+<br>
+                <div class="input-group">
+                    <label for="prefix">Invoice Prefix</label>
+                    <input type="text" id="prefix" name="prefix" th:field="*{prefix}" placeholder="Enter prefix (e.g., INV)" maxlength="10" required>
+                          
+                </div>
+                <div class="input-group">
+                    <label for="startNumber">Starting Number</label>
+                    <input type="number" id="startNumber" name="startNumber" th:field="*{startNumber}" placeholder="Enter starting number" min="1" required>
+                     
+                </div>
+                <div class="controls-group">
+                    <div class="auto-toggle">
+                        <span class="toggle-label">Auto Generate</span>
+                        <label class="switch">
+                            <input type="checkbox" 
+                                   id="autoToggle" 
+                                   name="isAutoGenerate">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="buttons">
+                        <button type="button" id="resetBtn" class="btn-secondary" onclick="resetForm()">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                        <button type="submit" id="saveBtn" class="btn-primary" onclick="saveForm()" th:disabled="${invoiceSettings.autoGenerate}">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </div>
+                </div>
+                <div class="preview">
+                    <label>Next Invoice Number:</label>
+                    <span id="previewNumber" th:text="${nextInvoiceNumber != null ? nextInvoiceNumber : 'INV1000'}">INV1000</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+<!-- You can leave this empty or remove it entirely, the JS will create the notification element if needed -->
+<div id="notification"></div>
+
+<!-- Include SweetAlert Library -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="text/javascript" src="js/dashboard.js"></script>
+
+	<script src="js/invoice.js"></script>
+   
+    <!--   Core JS Files   -->
+    <script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+    <!-- Kaiadmin JS -->
+    <script src="/assets/js/kaiadmin.min.js"></script>
+    
+    <!-- Form Navigation JS -->
+    <script type="text/javascript" src="js/form-navigation.js"></script>
+    
+</body>
+</html>
+    

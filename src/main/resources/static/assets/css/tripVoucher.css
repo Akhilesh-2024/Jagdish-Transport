@@ -1,0 +1,629 @@
+/* Import base styles */
+@import 'otherRate.css';
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0 auto;
+    background: var(--text-primary);
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.header p {
+    color: var(--dark-bg);
+    font-size: 1.2rem;
+}
+
+.top-left, .top-right {
+    text-align: left;
+}
+
+.top-right {
+    text-align: right;
+}
+
+body {
+    font-family: arial, sans-serif;
+    color: var(--text-primary);
+    background: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.container {
+    background: var(--text-primary);
+    height: fit-content;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+.main-panel {
+    margin-top: -2%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--dark-bg);
+    text-align: center;
+    margin-bottom: 0rem;
+    position: relative;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 30%;
+    height: 4px;
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-secondary) 100%);
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    animation: gradientShift 3s ease infinite;
+    transform: translateX(-50%);
+    margin-bottom: 0rem;
+}
+
+.form-container {
+    background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-secondary) 100%);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    height: fit-content;
+    padding-bottom: 5rem;
+    overflow: hidden;
+    padding-top: 3rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    padding-top: 0rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-section {
+    background: rgba(17, 24, 39, 0.6);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    height: fit-content;
+    width: 100%;
+    box-sizing: border-box;
+    transition: opacity 0.3s ease, background-color 0.3s ease;
+}
+
+/* Styles for disabled form sections */
+.form-section[style*="pointer-events: none"] {
+    background: rgba(17, 24, 39, 0.3);
+}
+
+.section-header {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--accent);
+    padding: 1rem;
+    margin: -2rem -2rem 2rem -2rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+
+}
+
+.input-label {
+    min-width: 120px;
+    max-width: 140px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    opacity: 0.9;
+}
+
+.input-field {
+    flex: 1;
+    height: 42px;
+    padding: 0 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    animation: pulse-border 1.5s infinite;
+}
+
+@keyframes pulse-border {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+select.input-field {
+   
+    padding-right: 2rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1em;
+    appearance: none;
+}
+
+.commission-field {
+    background: var(--dark-bg) !important;
+    color: var(--accent) !important;
+    font-weight: 600;
+    border-color: var(--accent) !important;
+}
+
+.narration-field {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding: 1rem;
+    padding-right: 2rem;
+    background: rgba(17, 24, 39, 0.8);
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 12px 12px;
+    margin: 2rem -2rem -5rem -2rem;
+    width: calc(100% + 4rem);
+    box-sizing: border-box;
+    align-items: center;
+}
+
+.button-group button, .nav-toggle button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+    position: relative;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    filter: brightness(1.1);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-add {
+    background: var(--accent);
+    margin-top: 0.1rem;
+}
+
+.btn-clear {
+    background: var(--danger);
+    width: fit-content;
+}
+
+.btn-view {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
+    width: fit-content;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 6px;
+    border: 3px solid rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #4b8ef9;
+}
+
+@media (max-width: 1200px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .form-sections {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    h2 {
+        font-size: 2rem;
+    }
+}
+
+.form-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .lorry-amount {
+        position: static;
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 0;
+    }
+
+    .container {
+        padding: 0.5rem;
+    }
+
+    .form-container {
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .form-sections {
+        grid-template-columns: 1fr;
+        padding: 0.5rem;
+        gap: 1rem;
+    }
+
+    .form-section {
+        padding: 1rem;
+    }
+
+    .input-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .input-label {
+        min-width: 100%;
+        margin-bottom: 0.25rem;
+    }
+
+    .button-group {
+        flex-direction: column;
+        margin: 1rem -1rem -1rem -1rem;
+        width: calc(100% + 2rem);
+    }
+
+    .btn-add, .btn-view, .btn-clear {
+        width: 100%;
+    }
+    
+    h2 {
+        font-size: 1.5rem;
+    }
+    
+    .section-header {
+        font-size: 1rem;
+    }
+}
+
+.notification {
+    width: fit-content;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: rgba(22, 163, 74, 0.9);
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(200%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.error {
+    background: var(--danger);
+}
+
+.notification i {
+    font-size: 1.2rem;
+}
+
+.tip-btn-add {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.lorry-amount {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 1024px) {
+    .lorry-amount {
+        position: relative;
+        bottom: 0;
+        right: 0;
+        width: 100%;
+    }
+}
+
+select option, optgroup {
+    background: var(--dark-bg);
+    color: var(--text-primary);
+}
+
+.input-label {
+    color: white !important;
+}
+
+select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+
+    padding-right: 2.5rem;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+
+/* Invoice number field styling */
+#invoiceNumber {
+    font-weight: bold;
+    color: #007bff;
+    background-color: #f8f9fa;
+}
+
+#invoiceNumber[disabled] {
+
+    background-color: #e9ecef;
+}
+
+/* Status indicator for auto/manual mode */
+.invoice-mode-indicator {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.auto-mode {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.manual-mode {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+/* Styles for readonly inputs */
+.readonly-input {
+ 
+    background-color: rgba(233, 236, 239, 0.1) !important;
+    opacity: 0.7;
+}
+
+/* Tooltip styles for Alt+C shortcut */
+.shortcut-tooltip {
+    position: relative;
+}
+
+.shortcut-tooltip::after {
+    content: "Press Alt+C to create new entry";
+    position: absolute;
+    top: -30px;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+}
+
+.shortcut-tooltip:focus::after {
+    opacity: 1;
+}
+
+/* Searchable Dropdown Styles */
+.searchable-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.dropdown-search-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.dropdown-search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.custom-dropdown-display {
+    position: absolute;
+    width: 100%;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--dark-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    padding: 8px 12px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item.selected {
+    background-color: rgba(23, 125, 255, 0.2);
+    font-weight: bold;
+}
+
+.dropdown-item.disabled {
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Make sure the dropdown is above other elements */
+.searchable-dropdown-wrapper {
+    z-index: 100;
+}
+
+/* Ensure dropdowns close properly */
+select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* Style for selected row in table */
+.selected-row {
+    background-color: rgba(23, 125, 255, 0.2) !important;
+    color: #000 !important;
+    font-weight: bold !important;
+}
+
+/* Ensure dropdowns are visible */
+.dropdown-menu.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1050 !important;
+}
+
+/* Improve date input styling */
+input[type="date"] {
+    position: relative;
+    cursor: pointer;
+    /* Remove extra padding as we're not adding our own icon */
+    padding-right: 10px !important;
+}
+
+/* Remove the custom calendar icon since browsers already have one */
+/* input[type="date"]:after {
+    content: "📅";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+} */
+
+/* Style for date input when focused */
+input[type="date"]:focus {
+    outline: none;
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
+    background-color: rgba(23, 125, 255, 0.1) !important;
+}
+

@@ -1,0 +1,267 @@
+@import url("vehicleStatement.css");
+
+/* Filter section optimizations */
+.filter-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+}
+
+.date-filter {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.date-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.date-input label {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.date-picker {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.search-box {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.vehicle-dropdown {
+    min-width: 180px;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.bill-number-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.bill-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bill-input label {
+    font-weight: 500;
+    color: var(--text-dark);
+}
+
+.bill-number-input {
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    width: 120px;
+    font-size: 14px;
+}
+
+/* Button styles */
+.btn-search, .btn-reset {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.btn-search {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-search:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-reset {
+    background-color: var(--text-light);
+    color: white;
+}
+
+.btn-reset:hover {
+    background-color: #555;
+}
+
+.btn-save-all {
+    background-color: var(--success);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.btn-save-all:hover {
+    background-color: var(--secondary-dark);
+}
+
+/* Notification styles */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    border-radius: 4px;
+    color: white;
+    display: none;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+}
+
+.notification.success {
+    background-color: var(--success);
+}
+
+.notification.error {
+    background-color: var(--danger);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Party info box */
+.party-info-box {
+    background-color: #f0f8ff;
+    border: 1px solid #add8e6;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+}
+
+.party-info-box h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-dark);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1100px) {
+    .filter-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .date-filter, .search-box, .bill-number-section {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .bill-number-section {
+        justify-content: space-between;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .date-filter {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .date-input {
+        width: 100%;
+    }
+    
+    .date-picker {
+        width: 100%;
+    }
+    
+    .search-box {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .vehicle-dropdown {
+        width: 100%;
+    }
+    
+    .bill-number-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .bill-input {
+        width: 100%;
+    }
+    
+    .bill-number-input {
+        width: 100%;
+    }
+    
+    .btn-save-all {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+    }
+}
+
+/* Container and table layout optimizations */
+.container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.table-container {
+  width: 100%;
+  padding: 0 10px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* Allow horizontal scroll only if absolutely necessary */
+}
+
+#partyBillTable {
+  width: 100%;
+  table-layout: fixed;
+  min-width: 800px;
+}
+
+
+
+
+/* Optimize column widths based on your table structure */
+#partyBillTable th:nth-child(1) { width: 40px; }   /* Checkbox */
+#partyBillTable th:nth-child(2) { width: 80px; }   /* Bill No. */
+#partyBillTable th:nth-child(3) { width: 90px; }   /* Date */
+#partyBillTable th:nth-child(4),
+#partyBillTable th:nth-child(5) { width: 130px; }  /* From, To */
+#partyBillTable th:nth-child(6) { width: 130px; }   /* Mode */
+#partyBillTable th:nth-child(7),
+#partyBillTable th:nth-child(8),
+#partyBillTable th:nth-child(9),
+#partyBillTable th:nth-child(10) { width: 80px; }  /* Amount, Qty, Rate, Total */

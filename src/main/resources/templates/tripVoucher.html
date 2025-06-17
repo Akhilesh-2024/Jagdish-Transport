@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Trip Voucher</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+   
+    <meta
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+      name="viewport"
+    />
+    <link
+      rel="icon"
+      href="/assets/img/kaiadmin/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Fonts and icons -->
+    <script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["/assets/css/fonts.min.css"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+	 <link rel="stylesheet" href="assets/css/tripVoucher.css">
+	 
+    <style>
+      /* Prevent date field from showing focus outline */
+      #tripDate:focus {
+        outline: none;
+        box-shadow: none;
+      }
+      
+      /* Sidebar styling for trip voucher page */
+      body.trip-voucher-page .sidebar {
+        display: block;
+        width: 250px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        overflow-y: auto;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        background-color: #1a2035; /* Match the dark theme */
+      }
+      
+      /* When sidebar is minimized, hide it */
+      body.trip-voucher-page .wrapper.sidebar_minimize .sidebar {
+        display: none;
+        width: 0;
+        left: -250px;
+      }
+      
+      /* Improve sidebar content alignment */
+      body.trip-voucher-page .sidebar-content {
+        padding: 10px 0;
+      }
+      
+      /* Improve sidebar menu items */
+      body.trip-voucher-page .sidebar .nav-item {
+        margin: 2px 15px;
+        border-radius: 5px;
+        transition: all 0.2s ease;
+      }
+      
+      body.trip-voucher-page .sidebar .nav-item a {
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        color: #b9babf;
+        font-weight: 500;
+        border-radius: 5px;
+        transition: all 0.2s ease;
+      }
+      
+      body.trip-voucher-page .sidebar .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      body.trip-voucher-page .sidebar .nav-item a:hover {
+        color: #ffffff;
+      }
+      
+      body.trip-voucher-page .sidebar .nav-item a i {
+        margin-right: 10px;
+        font-size: 16px;
+      }
+      
+      /* Main panel styling when sidebar is visible */
+      body.trip-voucher-page .main-panel {
+        width: calc(100% - 250px);
+        margin-left: 250px;
+        transition: all 0.3s ease;
+      }
+      
+      /* Expand main panel to full width for trip voucher page when sidebar is minimized */
+      body.trip-voucher-page .wrapper.sidebar_minimize .main-panel {
+        width: 100% !important;
+        margin-left: 0 !important;
+      }
+      
+      /* Ensure smooth transitions */
+      body.trip-voucher-page .wrapper {
+        transition: all 0.3s ease;
+      }
+      
+      /* Improve sidebar logo area */
+      body.trip-voucher-page .sidebar-logo {
+        padding: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      /* Improve sidebar scrollbar */
+      body.trip-voucher-page .sidebar::-webkit-scrollbar {
+        width: 5px;
+      }
+      
+      body.trip-voucher-page .sidebar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+      }
+      
+      body.trip-voucher-page .sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+      }
+      
+      body.trip-voucher-page .sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      
+      /* Add a subtle border to separate sidebar from content */
+      body.trip-voucher-page .sidebar {
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .company-name {
+        font-family: 'Public Sans', sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: 1px;
+        margin: 0;
+      }
+      .company-name .first {
+        color: #177dff; /* Primary blue color */
+      }
+      .company-name .second {
+        color: #ffffff; /* White color */
+      }
+      .company-name .third {
+        color: #ffa534; /* Orange accent color */
+      }
+      
+        .required::after {
+            content: '*';
+            color: var(--danger);
+            margin-left: 4px;
+        }
+        
+        /* Autocomplete styles */
+        .autocomplete-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        .autocomplete-results {
+            position: absolute;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--dark-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            z-index: 1000;
+            display: none;
+            margin-top: 2px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .autocomplete-item {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        
+        .autocomplete-item:hover, .autocomplete-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #177dff; /* Primary blue color */
+        }
+        
+        .autocomplete-field {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+           
+            border-radius: 5px;
+        }
+        
+        /* Style for the toggle sidebar button */
+        #toggleSidebarBtn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 4px;
+            background-color: #1a2035; /* Match the sidebar color */
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            margin-right: 15px;
+            vertical-align: middle;
+            font-weight: 500;
+        }
+        
+        #toggleSidebarBtn:hover {
+            background-color: #252d47; /* Slightly lighter for hover state */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        #toggleSidebarBtn:active, #toggleSidebarBtn:focus {
+            background-color: #1a2035; /* Match the sidebar color */
+            outline: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        #toggleSidebarBtn i {
+            margin-right: 5px;
+        }
+        
+        /* Adjust header layout for the button */
+        .header {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        /* Form container adjustments */
+        .form-container {
+            width: 100%;
+            max-width: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        /* Adjust container padding when sidebar is open */
+        body.trip-voucher-page .wrapper:not(.sidebar_minimize) .container {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 991px) {
+            body.trip-voucher-page .main-panel {
+                width: 100% !important;
+                margin-left: 0 !important;
+            }
+            
+            body.trip-voucher-page .sidebar {
+                width: 250px;
+                left: -250px;
+            }
+            
+            body.trip-voucher-page .wrapper:not(.sidebar_minimize) .sidebar {
+                left: 0;
+            }
+            
+            /* Add overlay when sidebar is open on mobile */
+            body.trip-voucher-page .wrapper:not(.sidebar_minimize)::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+        }
+
+    </style>
+  </head>
+  <body class="trip-voucher-page">
+    <div class="wrapper sidebar_minimize">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a href="#" class="logo">
+              <img
+                src="/assets/img/Your_paragraph_text-removebg-preview.png"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="100"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+<div class="sidebar-wrapper scrollbar scrollbar-inner">
+<div class="sidebar-content">
+    <ul class="nav nav-secondary">
+        <li class="nav-item">
+            <a th:href="@{/dashboard}" class="dashboard-btn">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+            </a>
+        </li>
+
+        <!-- Trip Voucher moved up after Dashboard -->
+        <li class="nav-item"><a th:href="@{/tripVoucher}"><i class="fas fa-ticket-alt"></i><p>Trip Voucher</p></a></li>
+
+        <!-- Master Menu -->
+        <li class="nav-item">
+            <a data-bs-toggle="collapse" href="#master">
+                <i class="fas fa-database"></i>
+                <p>Master</p>
+                <span class="caret"></span>
+            </a>
+            <div class="collapse" id="master">
+                <ul class="nav nav-collapse">
+                    <li><a th:href="@{/fromTo}"><span class="sub-item">From & To Master</span></a></li>
+                    <li><a th:href="@{/area-master}"><span class="sub-item">Area Master</span></a></li>
+                    <li><a th:href="@{/vehicle-type-master}"><span class="sub-item">Vehicle Type Master</span></a></li>
+                    <li><a th:href="@{/party-master}"><span class="sub-item">Party Master</span></a></li>
+                    <li><a th:href="@{/vehicle-master}"><span class="sub-item">Vehicle Master</span></a></li>
+                    <li><a th:href="@{/invoice}"><span class="sub-item">Invoice Number Series</span></a></li>
+                    <li><a th:href="@{/billSeries}"><span class="sub-item">Bill Number Series</span></a></li>
+                </ul>
+            </div>
+        </li>
+
+		<!-- Other Navigation Items -->
+		    <li class="nav-item"><a th:href="@{/otherRate}"><i class="fas fa-sliders-h"></i><p>Other Rate Master</p></a></li>
+		    <li class="nav-item"><a th:href="@{/partyBill}"><i class="fas fa-file-invoice-dollar"></i><p>Party Bill</p></a></li>
+		    <li class="nav-item"><a th:href="@{/partyStatement}"><i class="fas fa-file-invoice"></i><p>Party Statement</p></a></li>
+		    <li class="nav-item"><a th:href="@{/vehicleStatement}"><i class="fas fa-truck"></i><p>Vehicle Statement</p></a></li>
+    </ul>
+</div>
+
+</div>
+
+      </div>
+      <!-- End Sidebar -->
+
+	      <div class="main-panel">
+	       
+	<!-- load particular container -->
+			<div class="container">
+			  	<div class="header">
+		        <!-- Toggle Sidebar Button -->
+		        <button id="toggleSidebarBtn">
+		            <i class="fas fa-bars"></i> Menu
+		        </button>
+		       
+		        <h2>Trip Voucher</h2>
+		        <div class="top-right">
+		            <p><strong><span id="currentDay"></span></strong></p>
+		            <p>
+                <input type="date" id="tripDate" name="tripDate" style="border: none; background: transparent; color: inherit; font-size: inherit; width: 150px; cursor: pointer;" autofocus>
+              
+            </p>
+		        </div>
+		    </div>
+	    <div class="container">
+	          <div class="form-container">
+            <form id="tripForm">
+                <div class="form-sections">
+                    <!-- Transaction Details Section -->
+                    
+                    
+    <div class="form-section">
+    <div class="section-header">Transaction Details</div>
+    
+    <!-- SR. NO field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label required" style="min-width: 120px; max-width: 140px;">SR. NO</label>
+            <div style="flex: 1;">
+                <input type="text" id="billNumber" name="billNumber" class="input-field" placeholder="Enter Serial Number" style="width: 100%;">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lorry No field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label required" style="min-width: 120px; max-width: 140px;">Lorry No</label>
+            <div style="flex: 1; position: relative;">
+                <input type="text" id="vehicleNo" class="input-field autocomplete-field" placeholder="Enter Lorry No" required data-source="vehicle-master" style="width: 100%;">
+                <input type="hidden" id="vehicleNo_id" name="vehicleNo_id">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Vehicle Type field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label" style="min-width: 120px; max-width: 140px;">Vehicle Type</label>
+            <div style="flex: 1; position: relative;">
+                <input type="text" id="vehicleType" class="input-field autocomplete-field" placeholder="Enter Vehicle Type" data-source="vehicle-type-master" style="width: 100%;">
+                <input type="hidden" id="vehicleType_id" name="vehicleType_id">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Type field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label" style="min-width: 120px; max-width: 140px;">Payment Type</label>
+            <div style="flex: 1;">
+                <select id="paymentType" class="input-field" required style="width: 100%;">
+                    <option value="">Select Payment Type</option>
+                    <option value="Cash">Cash</option>
+                    <option value="Credit">Credit</option>
+                    <option value="Advance">Advance</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- From field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label" style="min-width: 120px; max-width: 140px;">From</label>
+            <div style="flex: 1; position: relative;">
+                <input type="text" id="from" class="input-field autocomplete-field" placeholder="Enter From Location" data-source="from-to-master" style="width: 100%;">
+                <input type="hidden" id="from_id" name="from_id">
+            </div>
+        </div>
+    </div>
+    
+    <!-- To field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label" style="min-width: 120px; max-width: 140px;">To</label>
+            <div style="flex: 1; position: relative;">
+                <input type="text" id="to" class="input-field autocomplete-field" placeholder="Enter To Location" data-source="from-to-master" style="width: 100%;">
+                <input type="hidden" id="to_id" name="to_id">
+            </div>
+        </div>
+    </div>
+    
+    <!-- To Be Billed field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label" style="min-width: 120px; max-width: 140px;">To Be Billed</label>
+            <div style="flex: 1; position: relative;">
+                <input type="text" id="toBeBilled" class="input-field autocomplete-field" placeholder="Enter Party Name" data-source="party-master" style="width: 100%;">
+                <input type="hidden" id="toBeBilled_id" name="toBeBilled_id">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Area Name field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label" style="min-width: 120px; max-width: 140px;">Area Name</label>
+            <div style="flex: 1; position: relative;">
+                <input type="text" id="areaName" class="input-field autocomplete-field" placeholder="Enter Area Name" data-source="area-master" style="width: 100%;">
+                <input type="hidden" id="areaName_id" name="areaName_id">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Waiting Hours field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label" style="min-width: 120px; max-width: 140px;">Waiting Hours</label>
+            <div style="flex: 1;">
+                <input type="number" id="waitingHrs" class="input-field" placeholder="Waiting Hours" min="0" style="width: 100%;">
+            </div>
+        </div>
+    </div>
+    
+    <!-- C/D/Wt field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label" style="min-width: 120px; max-width: 140px;">C/D/Wt</label>
+            <div style="flex: 1;">
+                <input type="number" id="cdwt" class="input-field" placeholder="C/D/Wt" min="0" style="width: 100%;">
+            </div>
+        </div>
+    </div>
+    
+    <!-- No. of Trips field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1; display: flex; align-items: center;">
+            <label class="input-label" style="min-width: 120px; max-width: 140px;">No. of Trips</label>
+            <div style="flex: 1;">
+                <input type="number" id="trips" class="input-field" placeholder="No. of Trips" min="1" value="1" style="width: 100%;">
+            </div>
+        </div>
+    </div>
+</div>
+
+                    <!-- Company Amount Section -->
+                    <div class="form-section">
+                        <div class="section-header">Company Amount</div>
+                        
+                        <!-- Freight field -->
+                        <div class="flex-row" style="display: flex; gap: 10px;">
+                            <div class="input-row" style="flex: 1;">
+                                <label class="input-label">Freight</label>
+                                <input type="number" id="freight" class="input-field" min="0" >
+                            </div>
+                        </div>
+                        
+                        <!-- Waiting Amount field -->
+                        <div class="flex-row" style="display: flex; gap: 10px;">
+                            <div class="input-row" style="flex: 1;">
+                                <label class="input-label">Waiting Amount</label>
+                                <input type="number" id="companyWaiting" class="input-field" placeholder="Waiting Amount" min="0">
+                            </div>
+                        </div>
+                        
+                        <!-- C/D/Wt Amount field -->
+                        <div class="flex-row" style="display: flex; gap: 10px;">
+                            <div class="input-row" style="flex: 1;">
+                                <label class="input-label">C/D/Wt Amount</label>
+                                <input type="number" id="companyCDWT" class="input-field" placeholder="C/D/Wt Amount" min="0">
+                            </div>
+                        </div>
+                        
+                        <!-- Khoti field -->
+                        <div class="flex-row" style="display: flex; gap: 10px;">
+                            <div class="input-row" style="flex: 1;">
+                                <label class="input-label">Khoti</label>
+                                <input type="number" id="khoti" class="input-field" placeholder="Khoti" min="0">
+                            </div>
+                        </div>
+                        
+                        <!-- Hamali field -->
+                        <div class="flex-row" style="display: flex; gap: 10px;">
+                            <div class="input-row" style="flex: 1;">
+                                <label class="input-label">Hamali</label>
+                                <input type="number" id="hamali" class="input-field" placeholder="Hamali" min="0">
+                            </div>
+                        </div>
+                        
+                        <!-- Extra field -->
+                        <div class="flex-row" style="display: flex; gap: 10px;">
+                            <div class="input-row" style="flex: 1;">
+                                <label class="input-label">Extra</label>
+                                <input type="number" id="extra" class="input-field" placeholder="Extra" min="0">
+                            </div>
+                        </div>
+                        
+                        <!-- Amount field -->
+                        <div class="flex-row" style="display: flex; gap: 10px;">
+                            <div class="input-row" style="flex: 1;">
+                                <label class="input-label">Amount</label>
+                                <input type="number" id="companyAmount" class="input-field" placeholder="Total Amount" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lorry Amount Section -->
+<div class="form-section lorry-amount">
+    <div class="section-header">Lorry Amount</div>
+    
+    <!-- Freight field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1;">
+            <label class="input-label">Freight</label>
+            <input type="text" id="lorryFreight" class="input-field">
+        </div>
+    </div>
+    
+    <!-- Waiting field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1;">
+            <label class="input-label">Waiting</label>
+            <input type="number" id="lorryWaiting" class="input-field readonly-input">
+        </div>
+    </div>
+    
+    <!-- C/D/Wt field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1;">
+            <label class="input-label">C/D/Wt</label>
+            <input type="number" id="lorryCDWT" class="input-field readonly-input">
+        </div>
+    </div>
+    
+    <!-- Extra field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1;">
+            <label class="input-label">Extra</label>
+            <input type="number" id="lorryExtra" class="input-field readonly-input">
+        </div>
+    </div>
+    
+    <!-- L.Amount field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1;">
+            <label class="input-label">L.Amount</label>
+            <input type="number" id="lorryAmount" class="input-field readonly-input">
+        </div>
+    </div>
+    <!-- C. Percentage field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1;" id="commissionPercentageRow">
+            <label class="input-label">C. Percentage</label>
+            <input type="number" id="commissionPercentage" class="input-field" value="10" min="0" max="100">
+        </div>
+    </div>
+    
+    <!-- Commission field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1;">
+            <label class="input-label">Commission</label>
+            <input type="number" id="lorryCommission" class="input-field readonly-input">
+        </div>
+    </div>
+    
+    <!-- Advance field -->
+    <div class="flex-row" style="display: flex; gap: 10px;">
+        <div class="input-row" style="flex: 1;">
+            <label class="input-label">Advance</label>
+            <input type="number" id="lorryAdvance" class="input-field">
+        </div>
+    </div>
+</div>
+                </div>
+
+                <div class="button-group">
+	                <div class="narration-field">
+			            <p><strong>Narration : </strong></p>
+		        	</div>
+                    <button type="reset" id="btn-clear" class="btn-clear">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                    <button type="button" id="btn-view" class="btn-view" onclick="event.preventDefault(); window.location.href='/tripVoucherTable';">
+                        <i class="fas fa-table"></i> View
+                    </button>
+                    <button type="submit" id="tip-btn-add" class="btn-add tip-btn-add">
+                        <i ></i> Add
+                    </button>
+                </div>
+            </form>
+        </div>
+	    </div>
+			</div>
+	
+	      </div>
+	      
+	       <div id="notification" class="notification"></div>
+	    </div>
+	    	
+	    	
+    <script type="text/javascript">
+ // Auto-fill Date and Day
+    const today = new Date();
+    document.getElementById("currentDate").textContent = today.toLocaleDateString();
+    document.getElementById("currentDay").textContent = today.toLocaleDateString('en-US', { weekday: 'long' });
+    
+    // Add trip-voucher-page class to body for CSS targeting
+    if (window.location.pathname.includes('tripVoucher')) {
+        document.body.classList.add('trip-voucher-page');
+    }
+
+ // Wait for the DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Completely disable sidebar for trip voucher page
+        if (window.location.pathname.includes('tripVoucher')) {
+            // Hide the sidebar completely with inline style
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.style.display = 'none';
+                sidebar.style.width = '0';
+            }
+            
+            // Expand the main panel to full width
+            const mainPanel = document.querySelector('.main-panel');
+            if (mainPanel) {
+                mainPanel.style.width = '100%';
+                mainPanel.style.marginLeft = '0';
+            }
+            
+            // Disable all sidebar toggle buttons
+            const toggleButtons = document.querySelectorAll('.toggle-sidebar, .sidenav-toggler');
+            toggleButtons.forEach(button => {
+                button.style.display = 'none';
+                // Remove all event listeners by cloning and replacing
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+            });
+        }
+    });
+    
+    // Also ensure sidebar is completely disabled when window is fully loaded
+    window.onload = function() {
+        if (window.location.pathname.includes('tripVoucher')) {
+            // Hide the sidebar completely with inline style
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.style.display = 'none';
+                sidebar.style.width = '0';
+            }
+            
+            // Expand the main panel to full width
+            const mainPanel = document.querySelector('.main-panel');
+            if (mainPanel) {
+                mainPanel.style.width = '100%';
+                mainPanel.style.marginLeft = '0';
+            }
+            
+            // Disable all sidebar toggle buttons
+            const toggleButtons = document.querySelectorAll('.toggle-sidebar, .sidenav-toggler');
+            toggleButtons.forEach(button => {
+                button.style.display = 'none';
+            });
+        }
+    };
+
+    // We're not disabling sidebar toggle functionality anymore
+    // Instead, we'll control it with our custom button
+    if (false) { // This block is now disabled
+        // Override the toggleSidebar function to do nothing
+        window.toggleSidebar = function() {
+            console.log('Sidebar toggle disabled on trip voucher page');
+            return false;
+        };
+        
+        // Override any other potential toggle functions
+        $(document).ready(function() {
+            // Disable all click events on sidebar toggle buttons
+            $('.toggle-sidebar, .sidenav-toggler').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            });
+        });
+    } else {
+        // Normal toggle function for other pages
+        function toggleSidebar() {
+            var minibutton = $('.toggle-sidebar');
+            
+            if ($('.wrapper').hasClass('sidebar_minimize')) {
+                // Expand sidebar
+                $('.wrapper').removeClass('sidebar_minimize');
+                minibutton.removeClass('toggled');
+                minibutton.html('<i class="gg-menu-right"></i>');
+                if (typeof mini_sidebar !== 'undefined') {
+                    mini_sidebar = 0;
+                }
+            } else {
+                // Minimize sidebar
+                $('.wrapper').addClass('sidebar_minimize');
+                minibutton.addClass('toggled');
+                minibutton.html('<i class="gg-more-vertical-alt"></i>');
+                if (typeof mini_sidebar !== 'undefined') {
+                    mini_sidebar = 1;
+                }
+            }
+            
+            // Trigger window resize to ensure layout adjustments
+            $(window).resize();
+        }
+    }
+
+    </script>
+    <!--   Core JS Files   -->
+    <script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+    <!-- Kaiadmin JS -->
+    <script src="/assets/js/kaiadmin.min.js"></script>
+    
+    <!-- Autocomplete JS -->
+    <script src="js/autocomplete.js"></script>
+    
+    <!-- Trip Voucher JS -->
+    <script src="js/tripVoucher.js"></script>
+    
+    <!-- Form Navigation JS -->
+    <script type="text/javascript" src="js/form-navigation.js"></script>
+    
+    <!-- Direct sidebar toggle script -->
+    <script>
+        // Wait for document to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Document loaded, setting up menu button');
+            
+            // Set focus on the date field
+            setTimeout(function() {
+                const dateField = document.getElementById('tripDate');
+                if (dateField) {
+                    dateField.focus();
+                    dateField.select();
+                }
+                
+                // Ensure menu button has the correct color
+                const menuBtn = document.getElementById('toggleSidebarBtn');
+                if (menuBtn) {
+                    menuBtn.style.backgroundColor = '#1a2035'; // Match sidebar color
+                }
+            }, 500);
+            
+            // Get the menu button
+            var menuBtn = document.getElementById('toggleSidebarBtn');
+            
+            // Add direct click event listener
+            if (menuBtn) {
+                console.log('Menu button found, adding click handler');
+                
+                menuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Menu button clicked');
+                    
+                    // Get the wrapper and sidebar elements
+                    var wrapper = document.querySelector('.wrapper');
+                    var sidebar = document.querySelector('.sidebar');
+                    var mainPanel = document.querySelector('.main-panel');
+                    
+                    // Toggle sidebar visibility
+                    if (wrapper.classList.contains('sidebar_minimize')) {
+                        console.log('Opening sidebar');
+                        
+                        // Show sidebar
+                        wrapper.classList.remove('sidebar_minimize');
+                        sidebar.style.display = 'block';
+                        sidebar.style.width = '250px';
+                        sidebar.style.left = '0';
+                        
+                        // Adjust main panel
+                        mainPanel.style.width = 'calc(100% - 250px)';
+                        mainPanel.style.marginLeft = '250px';
+                        
+                        // Add transition for smooth animation
+                        sidebar.style.transition = 'all 0.3s ease';
+                        mainPanel.style.transition = 'all 0.3s ease';
+                        
+                        // Update button text and ensure color matches sidebar
+                        menuBtn.innerHTML = '<i class="fas fa-times"></i> Close Menu';
+                        menuBtn.style.backgroundColor = '#1a2035'; // Match sidebar color
+                    } else {
+                        console.log('Closing sidebar');
+                        
+                        // Hide sidebar
+                        wrapper.classList.add('sidebar_minimize');
+                        sidebar.style.left = '-250px';
+                        
+                        // Use setTimeout to hide after transition completes
+                        setTimeout(function() {
+                            sidebar.style.display = 'none';
+                            sidebar.style.width = '0';
+                        }, 300);
+                        
+                        // Adjust main panel
+                        mainPanel.style.width = '100%';
+                        mainPanel.style.marginLeft = '0';
+                        
+                        // Add transition for smooth animation
+                        sidebar.style.transition = 'all 0.3s ease';
+                        mainPanel.style.transition = 'all 0.3s ease';
+                        
+                        // Update button text and ensure color matches sidebar
+                        menuBtn.innerHTML = '<i class="fas fa-bars"></i> Menu';
+                        menuBtn.style.backgroundColor = '#1a2035'; // Match sidebar color
+                    }
+                });
+                
+                // Ensure sidebar is initially closed
+                var wrapper = document.querySelector('.wrapper');
+                wrapper.classList.add('sidebar_minimize');
+                
+                var sidebar = document.querySelector('.sidebar');
+                if (sidebar) {
+                    sidebar.style.display = 'none';
+                    sidebar.style.width = '0';
+                    sidebar.style.left = '-250px';
+                    
+                    // Fix sidebar height to match viewport
+                    sidebar.style.height = '100vh';
+                    sidebar.style.overflowY = 'auto';
+                    
+                    // Add box shadow for better appearance
+                    sidebar.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.1)';
+                }
+                
+                var mainPanel = document.querySelector('.main-panel');
+                if (mainPanel) {
+                    mainPanel.style.width = '100%';
+                    mainPanel.style.marginLeft = '0';
+                    mainPanel.style.transition = 'all 0.3s ease';
+                }
+                
+                // Add window resize handler to adjust sidebar height
+                window.addEventListener('resize', function() {
+                    var sidebar = document.querySelector('.sidebar');
+                    if (sidebar) {
+                        sidebar.style.height = window.innerHeight + 'px';
+                    }
+                });
+            } else {
+                console.error('Menu button not found');
+            }
+        });
+    </script>
+    
+    </body>
+    </html>

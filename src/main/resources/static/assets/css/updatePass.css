@@ -1,0 +1,479 @@
+      :root {
+            --dark-bg: rgb(26, 32, 53);
+            --dark-secondary: rgb(41, 50, 81);
+            --text-primary: #ffffff;
+            --accent: #3b82f6;
+            --border: rgba(255, 255, 255, 0.1);
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+
+        body {
+            background: var(--text-primary);
+            color: var(--dark-bg);
+            margin: 0;
+            font-family: 'Raleway', sans-serif;
+            overflow-y: auto;
+        }
+
+        .container {
+            max-width: fit-content;  /* Increased for better spacing */
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 1rem;
+            background: linear-gradient(90deg, var(--accent) 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, #60a5fa 100%);
+            border-radius: 2px;
+        }
+
+        .settings-card {
+                background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-secondary) 100%);
+            border-radius: 12px;
+            padding: 3rem;  /* Increased padding */
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            max-width: 900px;
+            margin: 2rem auto;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .form-column {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .input-group {
+        	display: flex;
+        	flex-direction: column;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 2.5rem; /* Increased spacing for error messages */
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--border);
+            transition: color 0.3s ease;
+            font-size: 1.1rem; /* Adjusted icon size */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            height: 52px; /* Increased height for better alignment */
+            padding-left: 3rem !important;
+            padding-right: 3rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var (--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        input:focus + .input-icon {
+            color: var(--accent);
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 3px; /* Thinner line */
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .strength-meter {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+        }
+
+        .error-message {
+            position: absolute;
+            bottom: -1.8rem; /* Position below input */
+            left: 0;
+            right: 0;
+            display: flex !important;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+            background: transparent;
+            color: var(--danger) !important;
+        }
+
+        .error-message.show {
+            opacity: 1 !important;
+            transform: translateY(50%);
+        }
+
+        .success-message {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            background: rgba(34, 197, 94, 0.1);
+            margin-top: 0.5rem;
+            color: var(--success);
+        }
+
+        .message-icon {
+            font-size: 0.9rem;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-message .message-icon {
+            color: var(--danger);
+        }
+
+        .success-message .message-icon {
+            color: var(--success);
+        }
+
+        .forgot-password {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-align: right;
+            color: var(--accent);
+            text-decoration: none;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+            margin: 0;  /* Reset margin */
+        }
+
+        .forgot-password:hover {
+            color: #60a5fa;
+        }
+
+        button {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #2563eb;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        button[type="submit"] {
+            width: auto;
+            min-width: 180px;
+            height: 48px;
+            background: linear-gradient(90deg, var(--accent) 0%, #60a5fa 100%);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0 2rem;
+        }
+
+        button[type="submit"] i {
+            font-size: 1.1rem;
+        }
+
+        .actions-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            position: relative;
+        }
+
+        .form-messages {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -3rem;
+            width: 100%;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .settings-card {
+                padding: 1.5rem;
+            }
+
+            .form-section {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .form-column {
+                min-width: 100%;
+            }
+
+            .actions-row {
+                flex-direction: column-reverse;
+                gap: 1rem;
+            }
+
+            button[type="submit"] {
+                width: 100%;
+            }
+
+            .forgot-password {
+                text-align: center;
+            }
+        }
+
+        /* Add these styles to your existing CSS */
+        .status-message {
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .status-message.show {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-message.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .validation-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .validation-icon.show {
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        input.valid {
+            border-color: var(--success) !important;
+        }
+
+        input.invalid {
+            border-color: var(--danger) !important;
+        }
+
+        .error-message {
+            display: none;
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Success state icons */
+        .input-success-icon {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--success);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        input.valid + .input-icon {
+            color: var(--success);
+        }
+
+        input.valid ~ .input-success-icon {
+            opacity: 1;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 5px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b8ef9;
+        }
+
+        /* Add smooth scrolling to body */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .input-success-icon {
+    position: absolute;
+    right: 10px;
+    color: green;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.invalid {
+    border: 2px solid red;
+}
+
+.valid {
+    border: 2px solid green;
+}
+
+#strength-meter {
+    height: 5px;
+    width: 0%;
+    background-color: #dc3545;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+.success-message {
+    color: green;
+    font-weight: bold;
+    display: none;
+}
+
+
+/* Add to your existing styles */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.notification {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    background: var(--dark-bg);
+    border-left: 4px solid;
+    transform: translateX(120%);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 300px;
+}
+
+.notification.success {
+    border-left-color: var(--success);
+}
+
+.notification.error {
+    border-left-color: var(--danger);
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+        

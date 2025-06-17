@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Profile</title>
+    <link rel="stylesheet" th:href="@{/assets/css/profile.css}">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,600,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+	
+</head>
+<body>
+  <div class="container">
+        <!-- Client-side notification -->
+        <div id="notification" class="notification"></div>
+        
+        <div class="profile-container">
+            <div class="content-wrapper">
+                <!-- Server-side messages placeholder -->
+                <div id="serverMessages"></div>
+                
+                <!-- Business Name Display -->
+                <div class="business-name-container">
+                    <h1 id="businessNameDisplay" class="business-name-display">Business<span> Name</span></h1>
+                    <button id="editBusinessNameBtn" class="edit-business-name"><i class="fas fa-edit"></i></button>
+                    
+                    <div id="businessNameEditContainer" class="business-name-edit-container">
+                        <input type="text" id="businessNameInput" class="business-name-edit-input" placeholder="Enter Business Name">
+                        <button id="saveBusinessNameBtn" class="business-name-save"><i class="fas fa-check"></i></button>
+                        <button id="cancelBusinessNameBtn" class="business-name-cancel"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                
+                <!-- Business Profile Form -->
+                <form class="profile-form" id="profileForm">
+    
+                    <div class="logo-section">
+                        <div class="logo-wrapper">
+                            <div class="logo-preview circle">
+                                <img src="/api/placeholder/120/120" alt="Business Logo" id="logoPreview">
+                                <div class="camera-icon">
+                                    <label for="logoUpload">
+                                        <i class="fas fa-camera"></i>
+                                    </label>
+                                    <input type="file" id="logoUpload" name="profileLogo" accept="image/*" hidden>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <!-- Left Column -->
+                        <div class="form-section">
+                            <div class="form-inner">
+                                <div class="form-group">
+                                    <label><i class="fas fa-user"></i> Owner Name</label>
+                                    <input type="text" class="form-control" id="ownerName" name="ownerName" placeholder="Enter Owner Name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-envelope"></i> Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter Email Address" required>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-phone"></i> Contact Number</label>
+                                    <input type="tel" class="form-control" id="contactNumber" name="contactNumber" placeholder="Enter Contact Number" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column -->
+                        <div class="form-section">
+                            <div class="form-inner">
+                                <div class="form-group">
+                                    <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                                    <input type="text" class="form-control" id="address" name="address" placeholder="Enter Business Address" required>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-globe"></i> Country</label>
+                                    <input type="text" class="form-control" id="country" name="country" placeholder="Enter Country" required>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-info-circle"></i> Business Description</label>
+                                    <textarea class="form-control" id="description" name="description" placeholder="Describe your business..." required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="actions">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Profile</button>
+                        <button type="button" id="editProfileBtn" class="btn btn-warning"><i class="fas fa-edit"></i> Edit Profile</button>
+                        <button style="display: none;" type="button" id="viewProfileBtn" class="btn btn-secondary"><i class="fas fa-eye"></i> View Profile</button>
+                        <button type="button" onclick="goBack()" class="btn btn-outline-dark">
+  <i class="fas fa-arrow-left"></i> Back
+</button>
+                        
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Profile View Modal -->
+        <div id="profileModal" class="modal">
+            <div class="modal-content">
+                <button class="close-modal" id="closeModal"><i class="fas fa-times"></i></button>
+                <div id="profileView" class="profile-view">
+                    <!-- Profile content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script th:src="@{/js/profile.js}"></script>
+
+    
+</body>
+</html>

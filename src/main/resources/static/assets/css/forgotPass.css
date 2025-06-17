@@ -1,0 +1,24 @@
+@import url("updatePass.css");
+
+.main-panel {
+    margin-top: -3%;
+}
+
+.setting-card {
+    height: fit-content;
+}
+
+.input-group {
+	margin-bottom: 0;
+}
+
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

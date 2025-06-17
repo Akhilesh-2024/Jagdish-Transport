@@ -1,0 +1,286 @@
+
+ <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Jagdish Transport Dashboard</title>
+    <meta
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+      name="viewport"
+    />
+    <link
+      rel="icon"
+      href="/assets/img/kaiadmin/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Fonts and icons -->
+    <script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["/assets/css/fonts.min.css"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="assets/css/dashboardstyle.css" />
+    <link rel="stylesheet" href="assets/css/party-master.css" />
+
+    <style>
+      .company-name {
+        font-family: 'Public Sans', sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: 1px;
+        margin: 0;
+      }
+      .company-name .first {
+        color: #177dff; /* Primary blue color */
+      }
+      .company-name .second {
+        color: #ffffff; /* White color */
+      }
+      .company-name .third {
+        color: #ffa534; /* Orange accent color */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a th:href="@{/dashboard}" class="logo"> 
+              <img
+                src="/assets/img/Your_paragraph_text-removebg-preview.png"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="100"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+<div class="sidebar-wrapper scrollbar scrollbar-inner">
+<div class="sidebar-content">
+    <ul class="nav nav-secondary">
+        <li class="nav-item">
+            <a th:href="@{/dashboard}" class="dashboard-btn">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+            </a>
+        </li>
+
+        <!-- Trip Voucher - Moved up after Dashboard -->
+        <li class="nav-item"><a th:href="@{/tripVoucher}"><i class="fas fa-ticket-alt"></i><p>Trip Voucher</p></a></li>
+        
+        <!-- Master Menu -->
+        <li class="nav-item">
+            <a data-bs-toggle="collapse" href="#master">
+                <i class="fas fa-database"></i>
+                <p>Master</p>
+                <span class="caret"></span>
+            </a>
+            <div class="collapse" id="master">
+                 <ul class="nav nav-collapse">
+                    <li><a th:href="@{/fromTo}"><span class="sub-item">From & To Master</span></a></li>
+                    <li><a th:href="@{/area-master}"><span class="sub-item">Area Master</span></a></li>
+                    <li><a th:href="@{/vehicle-type-master}"><span class="sub-item">Vehicle Type Master</span></a></li>
+                    <li><a th:href="@{/party-master}"><span class="sub-item">Party Master</span></a></li>
+                    <li><a th:href="@{/vehicle-master}"><span class="sub-item">Vehicle Master</span></a></li>
+                    <li><a th:href="@{/invoice}"><span class="sub-item">Invoice Number Series</span></a></li>
+                    <li><a th:href="@{/billSeries}"><span class="sub-item">Bill Number Series</span></a></li>
+                </ul>
+            </div>
+        </li>
+
+		<!-- Other Navigation Items -->
+		    <li class="nav-item"><a th:href="@{/otherRate}"><i class="fas fa-sliders-h"></i><p>Other Rate Master</p></a></li>
+		    <li class="nav-item"><a th:href="@{/partyBill}"><i class="fas fa-file-invoice-dollar"></i><p>Party Bill</p></a></li>
+		    <li class="nav-item"><a th:href="@{/partyStatement}"><i class="fas fa-file-invoice"></i><p>Party Statement</p></a></li>
+		    <li class="nav-item"><a th:href="@{/vehicleStatement}"><i class="fas fa-truck"></i><p>Vehicle Statement</p></a></li>
+    </ul>
+</div>
+
+</div>
+
+      </div>
+      <!-- End Sidebar -->
+      <div class="main-panel">
+
+               <h1>Party Master</h1>
+               
+    <div class="content">
+
+
+        <div class="container">
+            <!-- Form Section -->
+            <div class="form-section">
+                <form id="partyMasterForm">
+                    <div class="form-group">
+                        <label for="companyName" style="color: #ffffff;">Party Name:</label>
+                        <input type="text" id="companyName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gstNo" style="color: #ffffff;">GST No:</label>
+                        <input type="text" id="gstNo">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address" style="color: #ffffff;">Address:</label>
+                        <input type="text" id="address" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" onclick="addParty()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add Party
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Empty State - This will show when no data is available -->
+                <div id="emptyState" class="empty-state">
+                    <i class="fas fa-building"></i>
+                    <h3>No Parties Added</h3>
+                    <p>Add your first party to get started</p>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="table-section">
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon" style="margin-top: -6px;"></i>
+                        <input type="text" id="partySearchInput" placeholder="Search parties...">
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table id="partyTable">
+                        <thead>
+                            <tr>
+                             <th>Sr no.</th>
+                                <th>Party Name</th>
+                                <th>GST No</th>
+                                <th>Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Example row (uncomment to see how it looks) -->
+                            <!--
+                            <tr>
+                                <td>ABC Company</td>
+                                <td>27AAPFU0939F1ZV</td>
+                                <td>123 Main Street, City</td>
+                                <td class="actions">
+                                    <button class="btn-icon btn-edit action-btn" onclick="enableEdit(this, '1')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon btn-delete action-btn" onclick="deleteParty('1')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                            -->
+                            
+                            <!-- Dynamic data will be inserted here -->
+                            <tr th:each="party : ${parties}">
+                                <td th:text="${party.companyName}"></td>
+                                <td th:text="${party.gstNo}"></td>
+                                <td th:text="${party.address}"></td>
+                                <td class="actions">
+                                    <button class="btn-icon btn-edit action-btn" onclick="enableEdit(this, '${party.id}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-icon btn-delete action-btn" onclick="deleteParty('${party.id}')">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification element -->
+    <div id="notification" class="notification">
+        <div class="notification-content">
+            <i class="fas fa-check-circle"></i>
+            <div class="notification-message" id="notificationMessage">Party added successfully!</div>
+            <button class="notification-close" onclick="hideNotification()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/dashboard.js"></script>
+   	   
+	<script type="text/javascript" src="js/party-master.js"></script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		
+    <!--   Core JS Files   -->
+    <script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+    <!-- Kaiadmin JS -->
+    <script src="/assets/js/kaiadmin.min.js"></script>
+    
+    <!-- Form Navigation JS -->
+    <script type="text/javascript" src="js/form-navigation.js"></script>
+
+    </body>
+    </html>
+ 

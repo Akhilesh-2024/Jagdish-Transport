@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Party Bill</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600&family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+   
+    <meta
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+      name="viewport"
+    />
+    <link
+      rel="icon"
+      href="/assets/img/kaiadmin/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Fonts and icons -->
+    <script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["/assets/css/fonts.min.css"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/partyStatement.css" />
+    
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+    
+  <style>
+	.table-container {
+	 	  background-color:rgb(26, 32, 53);; /* or any dark color */
+	 	  color: white;
+	 	  padding: 20px;
+	 	  border-radius: 10px;
+	 	  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+	 	}
+	 	.table-container input,
+	 	.table-container select,
+	 	.table-container button {
+	 	  background-color: #2a2a3d;
+	 	  color: white;
+	 	  border: 1px solid #444;
+	 	}
+
+	 	.table-container label {
+	 	  color: white;
+	 	}
+		.main-panel{
+			background-color:white !important;
+			padding:50px;
+		}
+	</style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a href="#" class="logo">
+              <img
+                src="/assets/img/Your_paragraph_text-removebg-preview.png"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="100"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+        <div class="sidebar-wrapper scrollbar scrollbar-inner">
+          <div class="sidebar-content">
+            <ul class="nav nav-secondary">
+              <li class="nav-item">
+                <a th:href="@{/dashboard}" class="dashboard-btn">
+                  <i class="fas fa-home"></i>
+                  <p>Dashboard</p>
+                </a>
+              </li>
+
+              <!-- Trip Voucher - Moved up after Dashboard -->
+              <li class="nav-item"><a th:href="@{/tripVoucher}"><i class="fas fa-ticket-alt"></i><p>Trip Voucher</p></a></li>
+              
+              <!-- Master Menu -->
+              <li class="nav-item">
+                <a data-bs-toggle="collapse" href="#master">
+                  <i class="fas fa-database"></i>
+                  <p>Master</p>
+                  <span class="caret"></span>
+                </a>
+                <div class="collapse" id="master">
+                  <ul class="nav nav-collapse">
+                    <li><a th:href="@{/fromTo}"><span class="sub-item">From & To Master</span></a></li>
+                    <li><a th:href="@{/area-master}"><span class="sub-item">Area Master</span></a></li>
+                    <li><a th:href="@{/vehicle-type-master}"><span class="sub-item">Vehicle Type Master</span></a></li>
+                    <li><a th:href="@{/party-master}"><span class="sub-item">Party Master</span></a></li>
+                    <li><a th:href="@{/vehicle-master}"><span class="sub-item">Vehicle Master</span></a></li>
+                    <li><a th:href="@{/invoice}"><span class="sub-item">Invoice Number Series</span></a></li>
+                    <li><a th:href="@{/billSeries}"><span class="sub-item">Bill Number Series</span></a></li>
+                  </ul>
+                </div>
+              </li>
+
+			  <!-- Other Navigation Items -->
+		      <li class="nav-item"><a th:href="@{/otherRate}"><i class="fas fa-sliders-h"></i><p>Other Rate Master</p></a></li>
+			  <li class="nav-item"><a th:href="@{/partyBill}"><i class="fas fa-file-invoice-dollar"></i><p>Party Bill</p></a></li>
+			  <li class="nav-item"><a th:href="@{/partyStatement}"><i class="fas fa-file-invoice"></i><p>Party Statement</p></a></li>
+			  <li class="nav-item"><a th:href="@{/vehicleStatement}"><i class="fas fa-truck"></i><p>Vehicle Statement</p></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+        <!-- load particular container -->
+        <div class="container" th:fragment="content">
+          <div class="table-container">
+            <div class="header">
+              <div class="title-section">
+                <h2>Party Statements</h2>
+              </div>
+              <div class="action-buttons">
+                <button id="exportExcelBtn" class="btn-export">
+                  <i class="fas fa-file-excel"></i> Export Excel
+                </button>
+                <button id="printInvoiceBtn" class="btn-print">
+                  <i class="fas fa-print"></i> Print Invoice
+                </button>
+              </div>
+            </div>
+            
+            <!-- Improved Filter Section -->
+            <div class="filter-section">
+              <div class="date-filter">
+                <div class="date-input">
+                  <label for="fromDate">From</label>
+                  <input type="date" id="fromDate" class="date-picker">
+                </div>
+                <div class="date-input">
+                  <label for="toDate">To</label>
+                  <input type="date" id="toDate" class="date-picker">
+                </div>
+              </div>
+              
+              <div class="search-box">
+                <select id="partySearchInput" class="vehicle-dropdown">
+                  <option value="">Select Party Name</option>
+                  <!-- Options will be populated dynamically -->
+                </select>
+                <button id="searchBtn" class="btn-search">
+                  <i class="fas fa-search"></i> Search
+                </button>
+                <button id="resetBtn" class="btn-reset">
+                  <i class="fas fa-undo"></i> Reset
+                </button>
+              </div>
+              
+              <div class="bill-number-section">
+                <div class="bill-input">
+                  <label for="billNo">Bill No.</label>
+                  <input type="text" id="billNo" class="bill-number-input" placeholder="Bill Number">
+                </div>
+                <div class="bill-input">
+                  <label for="billDate">Bill Date</label>
+                  <input type="date" id="billDate" class="bill-date-input bill-number-input">
+                </div>
+              </div>
+            </div>
+
+            <!-- Status Notification -->
+            <div id="notification" class="notification"></div>
+
+            <!-- Selected Party Information Box -->
+            <div id="selectedPartyInfo" class="party-info-box hidden">
+              <h3>Selected Party: <span id="currentPartyName"></span></h3>
+            </div>
+            
+            <div class="table-wrapper">
+              <table id="partyBillTable">
+                <thead>
+                  <tr>
+                    <th class="checkbox-cell">
+                      <input type="checkbox" id="selectAll" title="Select All">
+                    </th>
+                    <th>MR No.</th>
+                    <th>Date</th>
+                    <th>Lorry No.</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>T</th>
+                    <th>V</th>
+                    <th>Extra</th>
+                    <th>Freight</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot class="hidden">
+                  <tr>
+                    <td></td>
+                    <td colspan="4"></td>
+                    <td>Total</td>
+                    <td id="totalTrips">0.00</td>    
+                    <td></td>
+                    <td id="totalExtra">0.00</td>
+                    <td id="totalFreight">0.00</td>
+                    <td id="totalAmount">0.00</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            
+            <!-- Bank Details Section -->
+            <div class="bank-details-section">
+              <h4>Bank Details</h4>
+              <div class="bank-form">
+                <div class="form-group">
+                  <label for="accountHolder">Account Holder Name</label>
+                  <input type="text" id="accountHolder" class="form-control" placeholder="Enter account holder name">
+                </div>
+                <div class="form-group">
+                  <label for="bankName">Bank Name</label>
+                  <input type="text" id="bankName" class="form-control" placeholder="Enter bank name">
+                </div>
+                <div class="form-group">
+                  <label for="accountNumber">Account Number</label>
+                  <input type="text" id="accountNumber" class="form-control" placeholder="Enter account number">
+                </div>
+                <div class="form-group">
+                  <label for="branch">Branch</label>
+                  <input type="text" id="branch" class="form-control" placeholder="Enter branch name">
+                </div>
+                <div class="form-group">
+                  <label for="ifscCode">IFSC Code</label>
+                  <input type="text" id="ifscCode" class="form-control" placeholder="Enter IFSC code">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Enhanced Invoice Template (Hidden) -->
+<div id="invoiceTemplate" style="display: none;">
+  <div class="invoice-container">
+    <div class="invoice-header">
+      <div class="invoice-logo">
+        <img src="assets/img/profile.png" alt="Jagdish Transport Logo" width="150">
+      </div>
+      <div class="invoice-title">
+        <h2>INVOICE</h2>
+        <div class="invoice-company">JAGDISH TRANSPORT</div>
+        <div class="invoice-address">Transport Contractor & Commission Agent</div>
+        <div class="invoice-address">PLOT NO- SS-137, NEAR SHRINIWAS HOTEL, MIDC, SATPUR, NASHIK</div>
+        <div class="invoice-contact">Email: jagdishtrasnport5@gmail.com | Tel: 0253-2353251, 2363251</div>
+      </div>
+    </div>
+    
+    <div class="invoice-details-section">
+      <div class="invoice-period-box">
+        <span class="label">Bill For The Period:</span> <span id="invoicePeriod"></span>
+      </div>
+      
+      <div class="invoice-party-section">
+        <div class="invoice-party-details">
+          <div class="party-name"><span class="label">Party Name:</span> <span id="invoicePartyName"></span></div>
+          <div class="party-address"><span id="invoicePartyAddress"></span></div>
+        </div>
+        <div class="invoice-bill-details">
+          <div class="bill-number"><span class="label">Bill No:</span> <span id="invoiceBillNo"></span></div>
+          <div class="bill-date"><span class="label">Bill Date:</span> <span id="invoiceBillDate"></span></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="table-responsive">
+      <table class="invoice-table">
+        <thead>
+          <tr>
+            <th class="text-left">MR No.</th>
+            <th class="text-left">Date</th>
+            <th class="text-left">Lorry No.</th>
+            <th class="text-left">From</th>
+            <th class="text-left">To</th>
+            <th class="center-col">T</th>
+            <th class="text-left">V</th>
+            <th class="amount-col">Extra</th>
+            <th class="amount-col">Freight</th>
+            <th class="amount-col">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="invoiceTableBody">
+          <!-- Will be populated dynamically -->
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="5" class="no-border"></td>
+            <td class="total-label"><strong>Total</strong></td>
+            <td id="invoiceTotalTrips" class="center-col">0</td>
+            <td id="invoiceTotalExtra" class="amount-col">0.00</td>
+            <td id="invoiceTotalFreight" class="amount-col">0.00</td>
+            <td id="invoiceTotalAmount" class="amount-col bold-amount">0.00</td>
+          </tr>
+        </tfoot>
+        
+      </table>
+    </div>
+    <div class="amount-in-words">
+    <strong>Amount in Words:</strong>
+    <span id="invoiceAmountInWords"></span>
+</div>
+    
+    <div class="invoice-footer">
+      <div class="invoice-bank-details">
+        <h4>Bank Details</h4>
+        <table class="bank-details-table">
+          <tr>
+            <td><strong>Account Holder:</strong></td>
+            <td id="invoiceAccountHolder"></td>
+          </tr>
+          <tr>
+            <td><strong>Bank Name:</strong></td>
+            <td id="invoiceBankName"></td>
+          </tr>
+          <tr>
+            <td><strong>Account No:</strong></td>
+            <td id="invoiceAccountNumber"></td>
+          </tr>
+          <tr>
+            <td><strong>Branch:</strong></td>
+            <td id="invoiceBranch"></td>
+          </tr>
+          <tr>
+            <td><strong>IFSC Code:</strong></td>
+            <td id="invoiceIFSCCode"></td>
+          </tr>
+        </table>
+      </div>
+      
+      <div class="invoice-signature">
+        <p>For Jagdish Transport</p>
+        <div class="signature-line"></div>
+        <p>Authorized Signatory</p>
+      </div>
+    </div>
+    
+    <div class="invoice-terms">
+      <p class="terms-note">This is a computer-generated invoice and does not require a physical signature.</p>
+    </div>
+  </div>
+</div>
+
+	<script src="js/partyStatement.js"></script>
+	<script src="js/invoiceScript.js"></script>
+	
+<!-- Add XLSX.js for Excel export -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+	
+    <!-- JS Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+    <script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="/assets/js/kaiadmin.min.js"></script>
+
+    
+</body>
+</html>

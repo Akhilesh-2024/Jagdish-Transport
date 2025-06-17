@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Jagdish Transport</title>
+    <link rel="stylesheet" href="assets/css/login.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,600,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</head>
+<body>
+    <div class="form-bg">
+        <div class="container">
+            <div class="form-wrapper animate__animated animate__fadeIn">
+                <div class="form-container">
+                    <div class="profile-section">
+                        <div class="profile-image">
+                            <img src="/assets/img/profile.png" alt="Profile">
+                        </div>
+                        <h3 class="title">Welcome to Jagdish Transport</h3>
+                        <p class="subtitle">Sign in to continue</p>
+                    </div>
+                    
+                    <form class="form-horizontal" action="/perform_login" method="post">
+                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <div class="form-group">
+                            <span class="input-icon"><i class="fa fa-user"></i></span>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username" required>
+                        </div>
+                        <div class="form-group">
+                            <span class="input-icon"><i class="fa fa-lock"></i></span>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+                            <button type="button" class="toggle-password">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-footer">
+                            <button type="submit" id="saveBtn" class="btn signin">
+                                <i class="fa fa-sign-in-alt"></i> Sign In
+                            </button>
+                            <div class="additional-links">
+                                <a href="/OutsideforgotPass" class="forgot-link">Forgot Password?</a>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div style="text-align: center; margin-top: 5%" class="error-message" th:if="${param.error}">
+                        <p style="color: red;" th:text="'Invalid username or password!'"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+
+    <script src="js/login.js"></script>
+    
+     
+</body>
+</html>

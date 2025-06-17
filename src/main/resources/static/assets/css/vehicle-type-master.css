@@ -1,0 +1,319 @@
+        :root {
+            --dark-bg: rgb(26, 32, 53);
+            --dark-secondary: rgb(41, 50, 81);
+            --text-primary: #ffffff;
+            --accent: #3b82f6;
+            --border: rgba(255, 255, 255, 0.1);
+            --danger: #ef4444;
+            --success: #22c55e;
+        }
+
+        body {
+            background: var(--text-primary);
+            color: var(--text-primary);
+            margin: 0;
+            min-height: 100vh;
+            font-family: arial, sans-serif;
+            height: 100vh;
+            overflow: auto;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+           	padding-top: 2rem;
+
+        }
+
+        .content {
+        	border-radius: 16px;
+        	padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        	background: var(--dark-bg);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--dark-bg);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.5px;
+            text-align: center;
+            padding-bottom: 1rem;
+             position: relative; /* Required for ::after positioning */
+    text-align: center;
+            border-bottom: 1px solid var(--border);
+                margin-bottom: 1rem;
+        }
+        
+h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent) 0%, #60a5fa 100%);
+    border-radius: 2px;
+}
+        
+
+        /* Form Section */
+        .form-section {
+            border-radius: 16px;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+        }
+
+        form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        label {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-right: 0.5rem;
+        }
+
+        input[type="text"] {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            min-width: 250px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+
+        form button {
+            background: var(--accent);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        form button:hover {
+            background: #2563eb;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Table Section */
+        .table-section {
+            border-radius: 16px;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(17, 24, 39, 0.4);
+            table-layout: auto;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: center;
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        th {
+            background: rgba(59, 130, 246, 0.1);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 5px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Button styles */
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin: 0 2px;
+            background: transparent;
+        }
+
+        .btn-edit {
+            color: var(--accent);
+            border: 2px solid var(--accent);
+        }
+
+        .btn-delete {
+            color: var(--danger);
+            border: 2px solid var(--danger);
+        }
+
+        .btn-edit:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* Empty state styling */
+        .empty-state {
+            display: none;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            border: 1px dashed var(--border);
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+
+        .empty-state.show {
+            display: block;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--text-primary);
+            opacity: 0.75;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin: 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .empty-state p {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2rem;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 300px;
+            padding: 1rem;
+            border-radius: 8px;
+            background: var(--success);
+            color: white;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .notification-content i {
+            font-size: 1.25rem;
+            margin-top: 0.125rem;
+        }
+
+        .notification-message {
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .notification-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: white;
+            opacity: 0.7;
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: opacity 0.2s ease;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .form-section, .table-section {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            input[type="text"] {
+                width: 100%;
+                min-width: auto;
+            }
+        }

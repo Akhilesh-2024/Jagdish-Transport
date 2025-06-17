@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title> From & To Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+      name="viewport"
+    />
+    <link
+      rel="icon"
+      href="/assets/img/kaiadmin/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Fonts and icons -->
+    <script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["/assets/css/fonts.min.css"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+	    <link rel="stylesheet" href="assets/css/fromTo.css">
+    <style>
+      .company-name {
+        font-family: 'Public Sans', sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: 1px;
+        margin: 0;
+      }
+      .company-name .first {
+        color: #177dff; /* Primary blue color */
+      }
+      .company-name .second {
+        color: #ffffff; /* White color */
+      }
+      .company-name .third {
+        color: #ffa534; /* Orange accent color */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a href="#" class="logo">
+              <img
+                src="/assets/img/Your_paragraph_text-removebg-preview.png"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="100"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+<div class="sidebar-wrapper scrollbar scrollbar-inner">
+<div class="sidebar-content">
+    <ul class="nav nav-secondary">
+        <li class="nav-item">
+            <a th:href="@{/dashboard}" class="dashboard-btn">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+            </a>
+        </li>
+
+        <!-- Master Menu -->
+        <li class="nav-item">
+            <a data-bs-toggle="collapse" href="#master">
+                <i class="fas fa-database"></i>
+                <p>Master</p>
+                <span class="caret"></span>
+            </a>
+            <div class="collapse" id="master">
+                <ul class="nav nav-collapse">
+					<li><a th:href="@{/fromTo}" class="sub-item"><span class="sub-item">From & To Master</span></a></li>
+									<li><a th:href="@{/area-master}" class="sub-item"><span class="sub-item">Area Master</span></a></li>
+									<li><a th:href="@{/vehicle-type-master}" class="sub-item"><span class="sub-item">Vehicle Type Master</span></a></li>
+									<li><a th:href="@{/party-master}" class="sub-item"><span class="sub-item">Party Master</span></a></li>
+									<li><a th:href="@{/vehicle-master}" class="sub-item"><span class="sub-item">Vehicle Master</span></a></li>
+									<li><a th:href="@{/invoice}" class="sub-item"><span class="sub-item">Invoice Number Series</span></a></li>
+									<li><a th:href="@{/billSeries}" class="sub-item"><span class="sub-item">Bill Number Series</span></a></li>
+                </ul>
+            </div>
+        </li>
+
+        <!-- Other Navigation Items -->
+		<!-- Other Navigation Items -->
+		    <li class="nav-item"><a th:href="@{/otherRate}"><i class="fas fa-sliders-h"></i><p>Other Rate Master</p></a></li>
+		    <li class="nav-item"><a th:href="@{/tripVoucher}"><i class="fas fa-ticket-alt"></i><p>Trip Voucher</p></a></li>
+		    <li class="nav-item"><a th:href="@{/partyBill}"><i class="fas fa-file-invoice-dollar"></i><p>Party Bill</p></a></li>
+		    <li class="nav-item"><a th:href="@{/partyStatement}"><i class="fas fa-file-invoice"></i><p>Party Statement</p></a></li>
+		    <li class="nav-item"><a th:href="@{/vehicleStatement}"><i class="fas fa-truck"></i><p>Vehicle Statement</p></a></li>
+    </ul>
+</div>
+
+</div>
+
+      </div>
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+
+
+<!-- load particular container -->
+		<div class="container">
+		      <div class="container" th:fragment="content">
+        <h2>
+            From & To Master
+        </h2>
+        <div class="form-container">
+            <form id="transactionForm">
+                <div class="form-grid">
+                	<div class="input-group">
+                        <input type="text" 
+                               id="invoiceNo" 
+                               placeholder="Invoice No."
+                               min="0"
+                               required>
+                    </div>
+                    <div class="input-group">
+                        <select id="paymentType" required onchange="handlePaymentChange(this.value)">
+                            <option value="">Select Payment Type</option>
+                            <option value="Cash">Cash</option>
+                            <option value="Credit">Credit</option>
+                            <option value="Advance">Advance</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" 
+                               id="vehicleNo" 
+                               placeholder="Vehicle No."
+                               onkeyup="this.value = this.value.toUpperCase()"
+                               required>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" 
+                               id="mrNo" 
+                               placeholder="MR No." 
+                               pattern="4[0-9]*"
+                               required>
+                    </div>
+                    <div class="input-group">
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="input-group">
+                        <select id="from" required onchange="checkOtherLocation(this, 'fromOther')">
+                            <option value="">Select From Location</option>
+                            <option value="ENAM">ENAM</option>
+                            <option value="NEELAY METAL">NEELAY METAL</option>
+                            <option value="NEELAY IND">NEELAY IND</option>
+                            <option value="NOVACEPT">NOVACEPT</option>
+                            <option value="VASANT">VASANT</option>
+                            <option value="JAGDISH">JAGDISH</option>
+                            <option value="NASH">NASH</option>
+                            <option value="SOMESH">SOMESH</option>
+                            <option value="R. S. ENG.">R. S. ENG.</option>
+                            <option value="CEARS">CEARS</option>
+                            <option value="GURU METAL">GURU METAL</option>
+                            <option value="ACCURA">ACCURA</option>
+                            <option value="SPRINTECH">SPRINTECH</option>
+                            <option value="SPRINOTECH">SPRINOTECH</option>
+                            <option value="OM SAI">OM SAI</option>
+                            <option value="RISHABH">RISHABH</option>
+                            <option value="ABB">ABB</option>
+                            <option value="MICROTECH">MICROTECH</option>
+                            <option value="MAHALAXMI">MAHALAXMI</option>
+                            <option value="TC XPS">TC XPS</option>
+                            <option value="SANTOSH">SANTOSH</option>
+                            <option value="CEAT">CEAT</option>
+                            <option value="AARYA">AARYA</option>
+                            <option value="BOSCH">BOSCH</option>
+                            <option value="JP">JP</option>
+                            <option value="JHANU LOGISTICS">JHANU LOGISTICS</option>
+                            <option value="GRASP">GRASP</option>
+                            <option value="other">Other (enter manually)</option>
+                        </select>
+                        <input type="text" 
+                               id="fromOther" 
+                               placeholder="Enter Location" 
+                               style="display: none; margin-top: 0.5rem;">
+                    </div>
+                    <div class="input-group">
+                        <select id="to" required onchange="checkOtherLocation(this, 'toOther')">
+                            <option value="">Select To Location</option>
+                            <option value="ENAM">ENAM</option>
+                            <option value="NEELAY METAL">NEELAY METAL</option>
+                            <option value="NEELAY IND">NEELAY IND</option>
+                            <option value="NOVACEPT">NOVACEPT</option>
+                            <option value="VASANT">VASANT</option>
+                            <option value="JAGDISH">JAGDISH</option>
+                            <option value="NASH">NASH</option>
+                            <option value="SOMESH">SOMESH</option>
+                            <option value="R. S. ENG.">R. S. ENG.</option>
+                            <option value="CEARS">CEARS</option>
+                            <option value="GURU METAL">GURU METAL</option>
+                            <option value="ACCURA">ACCURA</option>
+                            <option value="SPRINTECH">SPRINTECH</option>
+                            <option value="SPRINOTECH">SPRINOTECH</option>
+                            <option value="OM SAI">OM SAI</option>
+                            <option value="RISHABH">RISHABH</option>
+                            <option value="ABB">ABB</option>
+                            <option value="MICROTECH">MICROTECH</option>
+                            <option value="MAHALAXMI">MAHALAXMI</option>
+                            <option value="TC XPS">TC XPS</option>
+                            <option value="SANTOSH">SANTOSH</option>
+                            <option value="CEAT">CEAT</option>
+                            <option value="AARYA">AARYA</option>
+                            <option value="BOSCH">BOSCH</option>
+                            <option value="JP">JP</option>
+                            <option value="JHANU LOGISTICS">JHANU LOGISTICS</option>
+                            <option value="GRASP">GRASP</option>
+                            <option value="other">Other (enter manually)</option>
+                        </select>
+                        <input type="text" 
+                               id="toOther" 
+                               placeholder="Enter Location" 
+                               style="display: none; margin-top: 0.5rem;">
+                    </div>
+                    <div class="input-group">
+                        <input type="number" id="trips" placeholder="T (#Trips)" min="0" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" 
+                               id="freight" 
+                               placeholder="Freight"
+                               min="0"
+                               required>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" 
+                               id="advance" 
+                               placeholder="Advance Amount" 
+                               onkeypress="return isNumberKey(event)"
+                               required>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" 
+                               id="commission" 
+                               placeholder="Commission" 
+                               onkeypress="return isNumberKey(event)"
+                               required>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" 
+                               id="extra" 
+                               placeholder="Extra"
+                               onkeypress="return isNumberKey(event)">
+                    </div>
+                    <div class="input-group">
+                        <input type="text" 
+                               id="amount" 
+                               placeholder="Amount" 
+                               onkeypress="return isNumberKey(event)" 
+                               hidden="">
+                    </div>
+
+                </div>
+                <div class="button-group">
+                    <button type="reset" class="btn-clear">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                    <button type="button" class="btn-view" onclick="window.location.href='fromToTable'">
+					    <i class="fas fa-table"></i> View All
+					</button>
+                    <button type="submit" class="btn-add">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+		</div>
+
+
+      </div>
+    </div>
+    
+    
+   <script>
+   document.addEventListener("DOMContentLoaded", function () {
+	    console.log("📢 Dashboard JS Loaded!");
+
+	    let navbar = document.querySelector(".main-header"); // Navbar element
+	    let container = document.getElementById("content-container"); // Main content area
+
+	    function attachEventListeners() {
+	        console.log("✅ Attaching event listeners...");
+
+	        document.querySelectorAll(".load-content").forEach(link => {
+	            link.addEventListener("click", function (event) {
+	                event.preventDefault(); // Prevent full-page reload
+
+	                let page = this.getAttribute("data-page"); // Get the selected page
+	                console.log(`🔄 Loading Page: ${page}`);
+
+	                // Show loading animation
+	                container.innerHTML = "<h3>Loading...</h3>";
+
+	                // Fetch content using AJAX
+	                fetch(`/${page}`) // Fetch Thymeleaf page
+	                    .then(response => {
+	                        if (!response.ok) throw new Error(`Page ${page} not found`);
+	                        return response.text();
+	                    })
+	                    .then(html => {
+	                        container.innerHTML = html; // Load new content
+	                        console.log(`✅ ${page} Loaded Successfully`);
+
+	                        // Hide Navbar when a page is loaded
+	                        navbar.style.opacity = "0";   
+	                        navbar.style.height = "0px";  
+	                        navbar.style.overflow = "hidden"; 
+	                        navbar.style.transition = "all 0.5s ease-in-out"; 
+
+	                        // ✅ Reattach event listeners
+	                        attachEventListeners();
+	                        reloadScript(`/js/${page}.js`); // Load page-specific JS
+	                    })
+	                    .catch(error => {
+	                        console.error("❌ Error loading content:", error);
+	                        container.innerHTML = "<h3>Error loading content. Page not found.</h3>";
+	                    });
+	            });
+	        });
+
+	        // ✅ Handle Back Button in `fromToTable`
+	        let backButton = document.querySelector(".back-btn");
+	        if (backButton) {
+	            backButton.addEventListener("click", function () {
+	                console.log("🔄 Returning to `fromTo`...");
+	                loadPage("fromTo"); // Call function to load `fromTo`
+	            });
+	        }
+
+	        console.log("Event listeners attached successfully.");
+	    }
+
+	    // ✅ Function to load pages dynamically (Used for Back Button)
+	    function loadPage(page) {
+	        console.log(`🔄 Loading Page: ${page}`);
+	        container.innerHTML = "<h3>Loading...</h3>";
+
+	        fetch(`/${page}`) 
+	            .then(response => response.text())
+	            .then(html => {
+	                container.innerHTML = html;
+	                console.log(`✅ ${page} loaded successfully`);
+
+	                // ✅ Reattach event listeners for new content
+	                attachEventListeners();
+	                reloadScript(`/js/${page}.js`);
+	            })
+	            .catch(error => {
+	                console.error("❌ Error loading content:", error);
+	                container.innerHTML = "<h3>Error loading content. Page not found.</h3>";
+	            });
+	    }
+
+	    // ✅ Function to reload JavaScript dynamically for each loaded page
+	    function reloadScript(scriptPath) {
+	        let oldScript = document.querySelector(`script[src="${scriptPath}"]`);
+	        if (oldScript) oldScript.remove(); // Remove old script if it exists
+
+	        let newScript = document.createElement("script");
+	        newScript.src = scriptPath;
+	        newScript.type = "text/javascript";
+	        newScript.onload = function () {
+	            console.log(`✅ JavaScript Reloaded: ${scriptPath}`);
+	        };
+	        document.body.appendChild(newScript);
+	    }
+
+	    // Attach event listeners when the page first loads
+	    attachEventListeners();
+
+	    // ✅ Handle Dashboard Button Click (Restore Default Content)
+	    document.querySelector(".dashboard-btn").addEventListener("click", function (event) {
+	        event.preventDefault(); // Prevent full-page reload
+
+	        console.log("🔄 Returning to Dashboard...");
+
+	        // Restore the default dashboard content
+	        container.innerHTML = `
+	          <h2>Welcome to Jagdish Transport Dashboard</h2>
+	          <p>Select an option from the sidebar to view details.</p>
+	        `;
+
+	        // Show Navbar again when Dashboard is clicked
+	        navbar.style.opacity = "1";   
+	        navbar.style.height = "auto"; 
+	        navbar.style.transition = "all 0.5s ease-in-out";
+	    });
+	});
+
+
+</script>
+
+	<script src="js/fromTo.js"></script>
+	
+    <!--   Core JS Files   -->
+    <script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+    <!-- Kaiadmin JS -->
+    <script src="/assets/js/kaiadmin.min.js"></script>
+    
+    </body>
+    </html>
+ 
+

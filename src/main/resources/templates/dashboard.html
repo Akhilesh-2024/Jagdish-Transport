@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Jagdish Transport Dashboard</title>
+    <meta
+      content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
+      name="viewport"
+    />
+    <link
+      rel="icon"
+      href="/assets/img/kaiadmin/favicon.ico"
+      type="image/x-icon"
+    />
+
+    <!-- Fonts and icons -->
+    <script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+      WebFont.load({
+        google: { families: ["Public Sans:300,400,500,600,700"] },
+        custom: {
+          families: [
+            "Font Awesome 5 Solid",
+            "Font Awesome 5 Regular",
+            "Font Awesome 5 Brands",
+            "simple-line-icons",
+          ],
+          urls: ["/assets/css/fonts.min.css"],
+        },
+        active: function () {
+          sessionStorage.fonts = true;
+        },
+      });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
+    <link rel="stylesheet" href="assets/css/dashboardstyle.css" />
+
+    <style>
+      .company-name {
+        font-family: 'Public Sans', sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        letter-spacing: 1px;
+        margin: 0;
+      }
+      .company-name .first {
+        color: #177dff; /* Primary blue color */
+      }
+      .company-name .second {
+        color: #ffffff; /* White color */
+      }
+      .company-name .third {
+        color: #ffa534; /* Orange accent color */
+      }
+      
+      /* Dashboard card styles */
+      .card-stats .card-body {
+        padding: 15px;
+      }
+      
+      .card-stats .icon-big {
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        font-size: 2rem;
+        border-radius: 50%;
+        box-shadow: 0 4px 20px 0 rgba(0,0,0,.14), 0 7px 10px -5px rgba(0,0,0,.1);
+        margin-right: 15px;
+      }
+      
+      .icon-primary {
+        background: linear-gradient(60deg, #177dff, #1a5eb3);
+        color: #fff;
+      }
+      
+      .icon-info {
+        background: linear-gradient(60deg, #2983ff, #1a5eb3);
+        color: #fff;
+      }
+      
+      .icon-success {
+        background: linear-gradient(60deg, #31ce36, #1d8e25);
+        color: #fff;
+      }
+      
+      .icon-warning {
+        background: linear-gradient(60deg, #ffa534, #ff8a00);
+        color: #fff;
+      }
+      
+      .card-stats .card-category {
+        font-size: 14px;
+        color: #9a9a9a;
+        margin-bottom: 0;
+      }
+      
+      .card-stats .card-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 5px 0;
+      }
+      
+      .bubble-shadow-small {
+        position: relative;
+      }
+      
+      .bubble-shadow-small:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        z-index: -1;
+        background-color: rgba(0,0,0,0.1);
+        filter: blur(8px);
+        opacity: 0.5;
+      }
+      
+      .card-round {
+        border-radius: 10px;
+      }
+      
+      .welcome-container {
+        margin-bottom: 30px;
+      }
+      
+      /* Dashboard card styles */
+      .dashboard-card {
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      
+      .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.2);
+      }
+      
+      .dashboard-card .card-footer {
+        background: transparent;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 10px;
+      }
+      
+      .view-more {
+        font-size: 14px;
+        color: #177dff;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      
+      .view-more i {
+        margin-left: 5px;
+        transition: all 0.3s ease;
+      }
+      
+      .dashboard-card:hover .view-more i {
+        transform: translateX(3px);
+      }
+      
+      /* Bills container */
+      .bills-container {
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      
+      .bills-container::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      
+      .bills-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      
+      .bills-container::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+      }
+      
+      .bills-container::-webkit-scrollbar-thumb:hover {
+        background: #999;
+      }
+      
+      /* Table styles */
+      .table thead th {
+        background-color: #f9f9f9;
+        border-top: none;
+        border-bottom: 2px solid #ebedf2;
+        font-weight: 600;
+        color: #555;
+      }
+      
+      .table tbody tr {
+        transition: all 0.2s ease;
+      }
+      
+      .table tbody tr:hover {
+        background-color: #f7faff;
+      }
+      
+      /* Animation for numbers */
+      @keyframes countUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .card-title {
+        animation: countUp 0.5s ease-out forwards;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar" data-background-color="dark">
+        <div class="sidebar-logo">
+          <!-- Logo Header -->
+          <div class="logo-header" data-background-color="dark">
+            <a th:href="@{/dashboard}" class="logo"> 
+              <img
+                src="/assets/img/Your_paragraph_text-removebg-preview.png"
+                alt="navbar brand"
+                class="navbar-brand"
+                height="100"
+              />
+            </a>
+            <div class="nav-toggle">
+              <button class="btn btn-toggle toggle-sidebar">
+                <i class="gg-menu-right"></i>
+              </button>
+              <button class="btn btn-toggle sidenav-toggler">
+                <i class="gg-menu-left"></i>
+              </button>
+            </div>
+            <button class="topbar-toggler more">
+              <i class="gg-more-vertical-alt"></i>
+            </button>
+          </div>
+          <!-- End Logo Header -->
+        </div>
+<div class="sidebar-wrapper scrollbar scrollbar-inner">
+<div class="sidebar-content">
+    <ul class="nav nav-secondary">
+        <li class="nav-item">
+            <a th:href="@{/dashboard}" class="dashboard-btn">
+                <i class="fas fa-home"></i>
+                <p>Dashboard</p>
+            </a>
+        </li>
+
+        <!-- Trip Voucher - Moved up after Dashboard -->
+        <li class="nav-item"><a th:href="@{/tripVoucher}"><i class="fas fa-ticket-alt"></i><p>Trip Voucher</p></a></li>
+        
+        <!-- Master Menu -->
+        <li class="nav-item">
+            <a data-bs-toggle="collapse" href="#master">
+                <i class="fas fa-database"></i>
+                <p>Master</p>
+                <span class="caret"></span>
+            </a>
+            <div class="collapse" id="master">
+                <ul class="nav nav-collapse">
+					
+					<li><a th:href="@{/fromTo}" class="sub-item"><span class="sub-item">From & To Master</span></a></li>
+					<li><a th:href="@{/area-master}" class="sub-item"><span class="sub-item">Area Master</span></a></li>
+					<li><a th:href="@{/vehicle-type-master}" class="sub-item"><span class="sub-item">Vehicle Type Master</span></a></li>
+					<li><a th:href="@{/party-master}" class="sub-item"><span class="sub-item">Party Master</span></a></li>
+					<li><a th:href="@{/vehicle-master}" class="sub-item"><span class="sub-item">Vehicle Master</span></a></li>
+					<li><a th:href="@{/invoice}" class="sub-item"><span class="sub-item">Invoice Number Series</span></a></li>
+					<li><a th:href="@{/billSeries}" class="sub-item"><span class="sub-item">Bill Number Series</span></a></li>
+
+                </ul>
+            </div>
+        </li>
+
+        <!-- Other Navigation Items -->
+		<li class="nav-item"><a th:href="@{/otherRate}"><i class="fas fa-sliders-h"></i><p>Other Rate Master</p></a></li>
+        <li class="nav-item"><a th:href="@{/partyBill}"><i class="fas fa-file-invoice-dollar"></i><p>Party Bill</p></a></li>
+        <li class="nav-item"><a th:href="@{/partyStatement}"><i class="fas fa-file-invoice"></i><p>Party Statement</p></a></li>
+        <li class="nav-item"><a th:href="@{/vehicleStatement}"><i class="fas fa-truck"></i><p>Vehicle Statement</p></a></li>
+    </ul>
+</div>
+
+</div>
+
+      </div>
+      <!-- End Sidebar -->
+
+      <div class="main-panel">
+        <div class="main-header">
+          <div class="main-header-logo">
+            <!-- Logo Header -->
+            <div class="logo-header" data-background-color="dark">
+              <a href="index.html" class="logo">
+                <img
+                  src="/assets/img/Your_paragraph_text-removebg-preview.png"
+                  alt="navbar brand"
+                  class="navbar-brand"
+                  height="20"
+                />
+              </a>
+              <div class="nav-toggle">
+                <button class="btn btn-toggle toggle-sidebar">
+                  <i class="gg-menu-right"></i>
+                </button>
+                <button class="btn btn-toggle sidenav-toggler">
+                  <i class="gg-menu-left"></i>
+                </button>
+              </div>
+              <button class="topbar-toggler more">
+                <i class="gg-more-vertical-alt"></i>
+              </button>
+            </div>
+            <!-- End Logo Header -->
+          </div>
+          <!-- Navbar Header -->
+          <nav
+            class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom"
+          >
+            <div class="container-fluid">
+              <div class="navbar-brand">
+                <h1 class="company-name">
+                  <span class="first">JAGDISH</span> 
+                  <span class="third">TRANSPORT</span>
+                </h1>
+              </div>
+
+              <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+
+                <li class="nav-item topbar-icon dropdown hidden-caret">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="messageDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i class="fa fa-envelope"></i>
+                  </a>
+                  <ul
+                    class="dropdown-menu messages-notif-box animated fadeIn"
+                    aria-labelledby="messageDropdown"
+                  >
+                    <li>
+                      <div
+                        class="dropdown-title d-flex justify-content-between align-items-center"
+                      >
+                        Messages
+                        <a href="#" class="small">Mark all as read</a>
+                      </div>
+                    </li>
+                    <li>
+                      <a class="see-all" href="javascript:void(0);"
+                        >See all messages<i class="fa fa-angle-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item topbar-icon dropdown hidden-caret">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="notifDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i class="fa fa-bell"></i>
+                    <span class="notification">4</span>
+                  </a>
+                  <ul
+                    class="dropdown-menu notif-box animated fadeIn"
+                    aria-labelledby="notifDropdown"
+                  >
+                    <li>
+                      <div class="dropdown-title">
+                        You have 4 new notification
+                      </div>
+                    </li>
+                    <li>
+                      <a class="see-all" href="javascript:void(0);"
+                        >See all notifications<i class="fa fa-angle-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item topbar-icon dropdown hidden-caret">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="settingsDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i class="fa fa-cog"></i>
+                  </a>
+                  <ul
+                    class="dropdown-menu notif-box animated fadeIn"
+                    aria-labelledby="settingsDropdown"
+                  >
+                    <li>
+                      <div class="dropdown-title">Settings</div>
+                    </li>
+                    <li>
+                      <div class="notif-scroll scrollbar-outer">
+                        <div class="notif-center">
+                          <a href="#">
+                            <div class="notif-icon notif-primary">
+                              <i class="fa fa-user-cog"></i>
+                            </div>
+                            <div class="notif-content">
+                              <span class="block"> Account settings </span>
+                              <span class="time">2 mins ago</span>
+                            </div>
+                          </a>
+                          <a href="#">
+                            <div class="notif-icon notif-success">
+                              <i class="fa fa-cog"></i>
+                            </div>
+                            <div class="notif-content">
+                              <span class="block"> General settings </span>
+                              <span class="time">5 mins ago</span>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    </li>
+                    <li>
+                      <a class="see-all" href="javascript:void(0);"
+                        >See all notifications<i class="fa fa-angle-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="nav-item topbar-icon dropdown hidden-caret">
+                  <a
+                    class="nav-link dropdown-toggle"
+                    href="#"
+                    id="quickActionsDropdown"
+                    role="button"
+                    data-bs-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="false"
+                  >
+                    <i class="fa fa-th-large"></i>
+                  </a>
+                  <div
+                    class="dropdown-menu quick-actions quick-actions-info animated fadeIn"
+                    aria-labelledby="quickActionsDropdown"
+                  >
+                    <div class="quick-actions-header">
+                      <span class="title mb-1">Quick Actions</span>
+                      <span class="subtitle op-8">Shortcuts</span>
+                    </div>
+                    <div class="quick-actions-scroll scrollbar-outer">
+                      <div class="quick-actions-items">
+                        <div class="row m-0">
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-danger rounded-circle"
+                              >
+                                <i class="far fa-calendar-alt"></i>
+                              </div>
+                              <span class="text">Calendar</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-warning rounded-circle"
+                              >
+                                <i class="fas fa-map"></i>
+                              </div>
+                              <span class="text">Maps</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-info rounded-circle"
+                              >
+                                <i class="fas fa-file-excel"></i>
+                              </div>
+                              <span class="text">Reports</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-success rounded-circle"
+                              >
+                                <i class="fas fa-envelope"></i>
+                              </div>
+                              <span class="text">Emails</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-primary rounded-circle"
+                              >
+                                <i class="fas fa-file-invoice-dollar"></i>
+                              </div>
+                              <span class="text">Invoice</span>
+                            </div>
+                          </a>
+                          <a class="col-6 col-md-4 p-0" href="#">
+                            <div class="quick-actions-item">
+                              <div
+                                class="avatar-item bg-secondary rounded-circle"
+                              >
+                                <i class="fas fa-credit-card"></i>
+                              </div>
+                              <span class="text">Payments</span>
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+
+     
+<li class="nav-item topbar-user dropdown hidden-caret">
+    <a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+         <div class="avatar-sm">
+            <img id="navProfileImage" src="/assets/img/profile.svg" alt="Profile" class="avatar-img rounded-circle" />
+        </div>
+        <span class="profile-username">
+            <span class="op-7">Hi,</span>
+            <span id="navUsername" class="fw-bold">Loading...</span>
+        </span>
+    </a>
+    <ul class="dropdown-menu dropdown-user animated fadeIn">
+        <div class="dropdown-user-scroll scrollbar-outer">
+            <li>
+                <div class="user-box">
+                   <div class="avatar-lg">
+                        <img id="dropdownProfileImage" src="/assets/img/profile.svg" alt="image profile" class="avatar-img rounded" />
+                    </div>
+                    <div class="u-text">
+                        <h4 id="dropdownUsername">Loading...</h4>
+                        <p id="dropdownEmail" class="text-muted">Loading...</p>
+                        <a href="profile.html" class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">My Profile</a>
+                <a class="dropdown-item" href="#">Account Setting</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#" id="logoutButton">Logout</a>
+            </li>
+        </div>
+    </ul>
+</li>
+              </ul>
+            </div>
+          </nav>
+          <!-- End Navbar -->
+        </div>
+
+        <!-- Main Content Container -->
+        <div class="container">
+            <div class="welcome-container" style="overflow: hidden; margin-bottom: 30px;">
+                <div class="welcome-header">
+                    <h1 class="welcome-title">Welcome to <br>Jagdish Transport</h1>
+                    <p class="welcome-subtitle">Streamlining Your Transportation Management Journey</p>
+                </div>
+                <div class="floating-help" title="Need help? Click here!">
+                    <i class="fas fa-question"></i>
+                </div>
+            </div>
+            
+            <!-- Dashboard Stats Cards -->
+            <div class="row">
+                <!-- Vehicle Card -->
+                <div class="col-sm-6 col-md-3 mb-4">
+                    <a href="/vehicle-master" class="text-decoration-none">
+                        <div class="card card-stats card-round dashboard-card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-icon">
+                                        <div class="icon-big text-center icon-primary bubble-shadow-small">
+                                            <i class="fas fa-truck"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col col-stats ml-3 ml-sm-0">
+                                        <div class="numbers">
+                                            <p class="card-category">Vehicles</p>
+                                            <h4 class="card-title" id="totalVehicles">Loading...</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-center mt-2">
+                                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Party Card -->
+                <div class="col-sm-6 col-md-3 mb-4">
+                    <a href="/party-master" class="text-decoration-none">
+                        <div class="card card-stats card-round dashboard-card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-icon">
+                                        <div class="icon-big text-center icon-info bubble-shadow-small">
+                                            <i class="fas fa-building"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col col-stats ml-3 ml-sm-0">
+                                        <div class="numbers">
+                                            <p class="card-category">Parties</p>
+                                            <h4 class="card-title" id="totalParties">Loading...</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-center mt-2">
+                                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Locations Card -->
+                <div class="col-sm-6 col-md-3 mb-4">
+                    <a href="/fromTo" class="text-decoration-none">
+                        <div class="card card-stats card-round dashboard-card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-icon">
+                                        <div class="icon-big text-center icon-success bubble-shadow-small">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col col-stats ml-3 ml-sm-0">
+                                        <div class="numbers">
+                                            <p class="card-category">Locations</p>
+                                            <h4 class="card-title" id="totalLocations">Loading...</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-center mt-2">
+                                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                
+                <!-- Vehicle Types Card -->
+                <div class="col-sm-6 col-md-3 mb-4">
+                    <a href="/vehicle-type-master" class="text-decoration-none">
+                        <div class="card card-stats card-round dashboard-card">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-icon">
+                                        <div class="icon-big text-center icon-warning bubble-shadow-small">
+                                            <i class="fas fa-truck-loading"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col col-stats ml-3 ml-sm-0">
+                                        <div class="numbers">
+                                            <p class="card-category">Vehicle Types</p>
+                                            <h4 class="card-title" id="totalVehicleTypes">Loading...</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer text-center mt-2">
+                                    <span class="view-more">View Details <i class="fas fa-arrow-right"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Recent Bills Section -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="card-title mb-0">
+                                <i class="fas fa-file-invoice-dollar mr-2"></i> Recent Bills
+                            </div>
+                            <a href="/partyBill" class="btn btn-sm btn-primary">View All Bills</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="bills-container">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Bill No</th>
+                                            <th>Date</th>
+                                            <th>Party Name</th>
+                                            <th>Amount</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recentBillsTable">
+                                        <tr>
+                                            <td colspan="5" class="text-center py-3">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                                <p class="mt-2">Loading recent bills...</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+	<script>
+	  document.querySelectorAll('#master .sub-item').forEach(item => {
+	    item.addEventListener('click', function (e) {
+	      e.stopPropagation(); // Prevent Bootstrap from collapsing the parent menu
+	    });
+	  });
+	</script>
+
+    <script type="text/javascript" src="js/dashboard.js"></script>
+    <script type="text/javascript" src="js/dashboard-stats.js"></script>
+   	   
+	<script type="text/javascript" src="js/logout.js"></script>
+	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+		
+    <!--   Core JS Files   -->
+    <script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+    <!-- Kaiadmin JS -->
+    <script src="/assets/js/kaiadmin.min.js"></script>
+    
+
+    
+    </body>
+    </html>

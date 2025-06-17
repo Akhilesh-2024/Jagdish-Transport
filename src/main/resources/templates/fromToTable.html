@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Records</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/fromToTable.css">
+    
+</head>
+<body>
+<div class="container" th:fragment="content">
+        <div class="table-container" >
+        <div class="header">
+            
+            <div class="title-section">
+            
+            <h2>Transaction Records</h2>
+           <button class="load-content back-btn" onclick="window.location.href='fromTo'">
+    			<i class="fas fa-plus"></i> New Transaction
+			</button>
+			</div>
+            <div class="summary-container">
+                <div class="summary-row">
+                    <span class="summary-label">Total Amount</span>
+                    <span class="summary-amount" id="summaryAmount">0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Total Advance</span>
+                    <span class="summary-amount" id="summaryAdvance">0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Total Commission</span>
+                    <span class="summary-amount" id="summaryCommission">0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Net Balance</span>
+                    <span class="summary-amount" id="nettBalance">0.00</span>
+                </div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+        
+        <div id="noDataMessage" class="empty-state">
+                <i class="fas fa-file-invoice fa-3x"></i>
+                <h3>No Transactions Found</h3>
+                <p>Your transaction list is empty. Create a new record to get started.</p>
+                <button onclick="window.location.href='fromTo'"class="btn-add-empty">
+                    <i class="fas fa-plus"></i> Create New Record
+                </button>
+            </div>
+            
+            <table id="transactionTable">
+                <thead>
+                    <tr>
+                        <th>MR No.</th>
+                        <th>Date</th>
+                        <th>Vehicle No.</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Pmt.</th>
+                        <th>T</th>
+                        <th>Advance</th>
+                        <th>Commission</th>
+                        <th>Extra</th>
+                        <th>Freight</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot class="hidden">
+                    <tr>
+                        <td colspan="5"></td>
+                        <td>Total</td>
+                        <td id="totalTrips">0.00</td>	
+                        <td id="totalAdvance">0.00</td>
+                        <td id="totalCommission">0.00</td>
+                        <td id="totalExtra">0.00</td>
+                        <td id="totalFreight">0.00</td>
+                        <td id="totalAmount">0.00</td>
+                        <td>
+                            <button onclick="saveAllChanges()" class="btn-save-all" title="Save All Changes">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div id="notification" class="notification"></div>
+ </div>
+ 
+    <script th:src="@{/js/fromToTable.js}"></script>
+        
+</body>
+</html>

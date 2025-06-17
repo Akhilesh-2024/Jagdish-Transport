@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Voucher Records</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/tripVouchertable.css">
+</head>
+<body>
+    <div class="table-container">
+        <div class="header">
+            <div class="header-content">
+                <div class="title-section">
+                    <h2>Trip Voucher Records</h2>
+                    <button class="load-content back-btn" onclick="window.location.href='tripVoucher'">
+                        <i class="fas fa-plus"></i> New Transaction
+                    </button>
+                </div>
+                
+                <!-- Filter section -->
+                <div class="filter-section">
+                    <div class="date-filter">
+                        <div class="date-input">
+                            <label for="fromDate">From</label>
+                            <input type="date" id="fromDate" class="date-picker">
+                        </div>
+                        <div class="date-input">
+                            <label for="toDate">To</label>
+                            <input type="date" id="toDate" class="date-picker">
+                        </div>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Search by MR No, Vehicle No (e.g., MH 12 HU 4564)...">
+                        <button id="searchBtn" class="btn-search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button id="resetBtn" class="btn-reset">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="filter-actions">
+                    <div id="summaryContainer" class="summary-container">
+                        <div class="summary-row">
+                            <div class="summary-label">Total Amount:</div>
+                            <div id="totalCompanyAmount" class="summary-value">0.00</div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-label">Advance:</div>
+                            <div id="totalAdvance" class="summary-value">0.00</div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-label">Commission:</div>
+                            <div id="totalCommission" class="summary-value">0.00</div>
+                        </div>
+                        <div class="summary-row">
+                            <div class="summary-label">Net Balance:</div>
+                            <div id="netBalance" class="summary-value">0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <div id="noDataMessage" class="empty-state">
+                <i style="font-size: 2rem;" class="fas fa-file-invoice fa-3x"></i>
+                <h3>No Transactions Found</h3>
+                <p>Your trip voucher list is empty. Create your first voucher to get started.</p>
+                <button onclick="window.location.href='tripVoucher'" class="btn-add-empty">
+                    <i class="fas fa-plus"></i> Create New Voucher
+                </button>
+            </div>
+            <table id="tripVoucherTable" class="tripVoucher-table">
+                <thead>
+                    <tr>
+                        <th data-column="date">Date</th>
+                        <th data-column="invoiceNumber">Mr No.</th>
+                        <th data-column="vehicleNo">Vehicle No</th>
+                        <th data-column="type">Type</th>
+                        <th data-column="from">From</th>
+                        <th data-column="to">To</th>
+                        <th data-column="billedTo">Billed To</th>
+                        <th data-column="advance">Advance</th>
+                        <th data-column="freight">Freight</th>
+                        <th data-column="extra">Extra</th>
+                        <th data-column="company">Company</th>
+                        <th data-column="lorry">Lorry</th>
+                        <th data-column="actions">Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="7" class="text-right"><strong>Totals</strong></td>
+                        <td id="totalAdvance">0.00</td>
+                        <td id="totalCoFreight">0.00</td>
+                        <td id="totalExtra">0.00</td>
+                        <td id="totalCompany">0.00</td>
+                        <td id="totalLorry">0.00</td>
+                        <td></td> <!-- Empty cell for Actions column in footer -->
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    <div id="notification" class="notification"></div>
+    
+    <style>
+        /* Modal base styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Modal content box */
+.modal-content {
+    background-color: #1e1e2f;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 1000px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Modal header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 10px;
+}
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: white;
+}
+.modal-header .close {
+    font-size: 26px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+}
+
+/* Form layout */
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Section headers */
+.form-section h4 {
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 6px;
+}
+
+/* Form row styling */
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+}
+
+/* Form groups */
+.form-group {
+    flex: 1 1 250px;
+    display: flex;
+    flex-direction: column;
+}
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #e0e0e0;
+}
+.form-group input,
+.form-group select {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+    background-color: rgba(255, 255, 255, 0.05);
+    color: white;
+    box-sizing: border-box;
+    transition: 0.3s ease;
+}
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #00bcd4;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Buttons */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 25px;
+}
+.btn-save-all,
+.btn-cancel-all {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    color: white;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+.btn-save-all {
+    background-color: #28a745;
+}
+.btn-cancel-all {
+    background-color: #dc3545;
+}
+.btn-save-all:hover,
+.btn-cancel-all:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+    </style>
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Trip Voucher</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="editVoucherForm">
+                    <input type="hidden" id="editVoucherId">
+                    
+                    <div class="form-grid">
+                        <!-- Basic Information -->
+                        <div class="form-section">
+                            <h4>Basic Information</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editMrNo">Mr No.</label>
+                                    <input type="text" id="editMrNo" name="mrNo" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editVehicleNo">Vehicle No</label>
+                                    <input type="text" id="editVehicleNo" name="vehicleNo">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editVehicleType">Type</label>
+                                    <select id="editVehicleType" name="vehicleType">
+                                        <option value="">Select Vehicle Type</option>
+                                        <option value="CH">CH</option>
+                                        <option value="T">T</option>
+                                        <option value="19 F">19 F</option>
+                                        <option value="17 F">17 F</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editPaymentType">Payment Type</label>
+                                    <select id="editPaymentType" name="paymentType">
+                                        <option value="Cash">Cash</option>
+                                        <option value="Credit">Credit</option>
+                                        <option value="Bank Transfer">Bank Transfer</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editFromLocation">From</label>
+                                    <input type="text" id="editFromLocation" name="fromLocation">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editToLocation">To</label>
+                                    <input type="text" id="editToLocation" name="toLocation">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editToBeBilled">Billed To</label>
+                                    <input type="text" id="editToBeBilled" name="toBeBilled">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editAreaName">Area</label>
+                                    <input type="text" id="editAreaName" name="areaName">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editWaitingHrs">Waiting Hrs</label>
+                                    <input type="number" step="0.01" id="editWaitingHrs" name="waitingHrs">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editCdwt">C/D/Wt</label>
+                                    <input type="number" step="0.01" id="editCdwt" name="cdwt">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editTrips">Trips</label>
+                                    <input type="number" id="editTrips" name="trips">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Company Amount Section -->
+                        <div class="form-section">
+                            <h4>Company Amount</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editFreight">Freight</label>
+                                    <input type="number" step="0.01" id="editFreight" name="freight">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editCompanyWaiting">Waiting</label>
+                                    <input type="number" step="0.01" id="editCompanyWaiting" name="companyWaiting">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editCompanyCDWT">C/D/Wt</label>
+                                    <input type="number" step="0.01" id="editCompanyCDWT" name="companyCDWT">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editKhoti">Khoti</label>
+                                    <input type="number" step="0.01" id="editKhoti" name="khoti">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editHamali">Hamali</label>
+                                    <input type="number" step="0.01" id="editHamali" name="hamali">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editExtra">Extra</label>
+                                    <input type="number" step="0.01" id="editExtra" name="extra">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editCompanyTotal">Total Company Amount</label>
+                                    <input type="number" step="0.01" id="editCompanyTotal" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lorry Amount Section -->
+                        <div class="form-section">
+                            <h4>Lorry Amount</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editLorryFreight">Freight</label>
+                                    <input type="number" step="0.01" id="editLorryFreight" name="lorryFreight">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editLorryWaiting">Waiting</label>
+                                    <input type="number" step="0.01" id="editLorryWaiting" name="lorryWaiting">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editLorryCDWT">C/D/Wt</label>
+                                    <input type="number" step="0.01" id="editLorryCDWT" name="lorryCDWT">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editLorryAmount">L.Amount</label>
+                                    <input type="number" step="0.01" id="editLorryAmount" name="lorryAmount">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editLorryCommission">Commission</label>
+                                    <input type="number" step="0.01" id="editLorryCommission" name="lorryCommission">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editLorryExtra">Extra</label>
+                                    <input type="number" step="0.01" id="editLorryExtra" name="lorryExtra">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="editAdvance">Advance</label>
+                                    <input type="number" step="0.01" id="editAdvance" name="advance">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editLorryTotal">Total Lorry Amount</label>
+                                    <input type="number" step="0.01" id="editLorryTotal" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="saveVoucherBtn" class="btn-save-all">Save Changes</button>
+                        <button type="button" id="cancelEditBtn" class="btn-cancel-all">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add SweetAlert CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="js/tripVouchertable.js"></script>
+</body>
+</html>

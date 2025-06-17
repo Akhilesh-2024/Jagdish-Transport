@@ -1,0 +1,293 @@
+@charset "UTF-8";
+@import url("tripVouchertable.css");
+
+:root {
+  --primary-color: #3498db;
+  --primary-dark: #2980b9;
+  --secondary-color: #2ecc71;
+  --secondary-dark: #27ae60;
+  --light-gray: #f8f9fa;
+  --border-color: #e0e0e0;
+  --text-dark: #333;
+  --text-light: #666;
+  --danger: #e74c3c;
+  --warning: #f39c12;
+  --success: #2ecc71;
+   --dark-bg: rgb(26, 32, 53);
+    --dark-secondary: rgb(41, 50, 81);
+}
+
+/* Container and table layout optimizations */
+.container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+
+}
+
+.table-container {
+  width: 100%;
+  padding: 0 10px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto; /* Allow horizontal scroll only if absolutely necessary */
+}
+
+#transactionTable {
+  width: 100%;
+  table-layout: fixed; /* Use fixed layout for better control */
+  min-width: 800px; /* Minimum width to ensure readability */
+}
+
+/* Optimize column widths */
+#transactionTable th:nth-child(1) { width: 40px; } /* Checkbox */
+#transactionTable th:nth-child(2) { width: 80px; } /* MR No. */
+#transactionTable th:nth-child(3) { width: 90px; } /* Date */
+#transactionTable th:nth-child(4),
+#transactionTable th:nth-child(5) { width: 100px; } /* From, To */
+#transactionTable th:nth-child(6) { width: 60px; } /* Pmt */
+#transactionTable th:nth-child(7) { width: 30px; } /* T */
+#transactionTable th:nth-child(8),
+#transactionTable th:nth-child(9),
+#transactionTable th:nth-child(10),
+#transactionTable th:nth-child(11),
+#transactionTable th:nth-child(12) { width: 90px; } /* Numeric columns */
+
+/* Header styles */
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.summary-container {
+  position: relative;
+  top: 0;
+  right: 0;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.summary-label {
+  font-weight: 500;
+  margin-right: 10px;
+}
+
+.summary-amount {
+  font-weight: 600;
+}
+
+/* Filter section optimizations */
+.filter-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.date-filter {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.date-input {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.date-picker {
+  padding: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.search-box {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.vehicle-dropdown {
+  min-width: 150px;
+  padding: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.export-section {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+/* Button styles */
+.btn-search, .btn-reset {
+  padding: fit-content;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-reset {
+  background-color: var(--text-light);
+}
+
+.back-btn {
+  padding: 8px 12px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-export {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-print {
+  background-color: var(--warning);
+  color: white;
+}
+
+.btn-print:hover {
+  background-color: #e67e22;
+}
+
+.btn-excel {
+  background-color: var(--success);
+  color: white;
+}
+
+.btn-excel:hover {
+  background-color: var(--secondary-dark);
+}
+
+.btn-save-all {
+  background-color: var(--success);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+}
+
+/* Utility classes */
+.hidden {
+  display: none;
+}
+
+/* Checkbox styling */
+.checkbox-cell {
+  width: 40px;
+  text-align: center;
+}
+
+.select-checkbox, #selectAll {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Empty state styling */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+}
+
+.btn-add-empty {
+  margin-top: 15px;
+  padding: 10px 15px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 1100px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .summary-container {
+    width: 100%;
+    margin-top: 15px;
+  }
+
+  .filter-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .export-section {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .title-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .date-filter, .search-box, .export-section {
+    width: 100%;
+  }
+  
+  .vehicle-dropdown {
+    flex-grow: 1;
+  }
+}
