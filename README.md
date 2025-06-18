@@ -174,6 +174,6 @@ This project is licensed under the [MIT License](LICENSE) - see the LICENSE file
 
 ## Contact
 
-Your Name: atharvapimparkar1416@gmail.com  
+Name: atharvapimparkar1416@gmail.com  
 Project Link: https://github.com/Atharva-2510/Jagdish-Transport
 
