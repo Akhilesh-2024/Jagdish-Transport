@@ -4,9 +4,6 @@ Jagdish Transport Management System is a web-based application designed to autom
 
 ## Author
 
-<a href="https://github.com/Atharva-2510/Jagdish-Transport/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Atharva-2510/Jagdish-Transport" />
-</a>
 
 ## Features
 
