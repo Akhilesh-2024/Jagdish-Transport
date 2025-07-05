@@ -13,6 +13,12 @@ import com.example.JagdishTransport.model.PartyMaster;
 public interface PartyMasterRepository extends JpaRepository<PartyMaster, Long> {
     PartyMaster findByCompanyName(String companyName);
     
+    // Check if GST number exists
+    boolean existsByGstNo(String gstNo);
+    
+    // Find by GST number
+    PartyMaster findByGstNo(String gstNo);
+    
     // Search method for parties
     Page<PartyMaster> findByCompanyNameContainingIgnoreCase(String query, Pageable pageable);
     

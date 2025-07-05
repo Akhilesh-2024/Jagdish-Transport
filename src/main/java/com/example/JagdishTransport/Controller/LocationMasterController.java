@@ -62,6 +62,13 @@ public class LocationMasterController {
         return ResponseEntity.ok().build();
     }
     
+    @DeleteMapping("/delete-multiple")
+    @ResponseBody
+    public ResponseEntity<Void> deleteMultipleLocations(@RequestBody List<Long> locationIds) {
+        locationService.deleteMultipleLocations(locationIds);
+        return ResponseEntity.ok().build();
+    }
+    
     @GetMapping("/search")
     @ResponseBody
     public List<Location> searchLocations(String query) {

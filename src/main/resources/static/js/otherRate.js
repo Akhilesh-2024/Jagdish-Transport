@@ -12,6 +12,10 @@ class RateManager {
             vehicleTypes: "/vehicle-type-master/all",
             saveVehicleType: "/vehicle-type-master/add"
         };
+        // Pagination settings
+        this.itemsPerPage = 20;
+        this.currentPage = 1;
+        this.selectedItems = new Set();
         this.init();
     }
 
@@ -31,6 +35,279 @@ class RateManager {
             this.renderTable();
             this.setupInputHandlers();
             this.setupSearchFunctionality();
+            this.setupSelectionHandlers();
+            this.renderPagination();
+        }
+    }
+    
+    // Setup handlers for selection checkboxes
+    setupSelectionHandlers() {
+        // Setup select all checkbox
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                this.selectAllItems(isChecked);
+            });
+        }
+        
+        // Setup delete selected button
+        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+        if (deleteSelectedBtn) {
+            deleteSelectedBtn.addEventListener('click', () => {
+                this.deleteSelectedItems();
+            });
+        }
+    }
+    
+    // Select or deselect all items
+    selectAllItems(select) {
+        const checkboxes = document.querySelectorAll('#rateTableBody input[type="checkbox"]');
+        const visibleRows = Array.from(document.querySelectorAll('#rateTableBody tr')).filter(
+            row => row.style.display !== 'none'
+        );
+        
+        this.selectedItems.clear();
+        
+        if (select) {
+            visibleRows.forEach(row => {
+                const index = parseInt(row.dataset.index);
+                if (!isNaN(index)) {
+                    this.selectedItems.add(index);
+                }
+            });
+        }
+        
+        // Update checkboxes
+        checkboxes.forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            const index = parseInt(row.dataset.index);
+            checkbox.checked = select && row.style.display !== 'none';
+        });
+        
+        this.updateDeleteButtonState();
+    }
+    
+    // Toggle selection of a single item
+    toggleItemSelection(index) {
+        if (this.selectedItems.has(index)) {
+            this.selectedItems.delete(index);
+        } else {
+            this.selectedItems.add(index);
+        }
+        
+        this.updateDeleteButtonState();
+        this.updateSelectAllCheckbox();
+    }
+    
+    // Update the state of the delete button based on selections
+    updateDeleteButtonState() {
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        if (deleteBtn) {
+            deleteBtn.disabled = this.selectedItems.size === 0;
+        }
+    }
+    
+    // Update the state of the select all checkbox
+    updateSelectAllCheckbox() {
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        if (!selectAllCheckbox) return;
+        
+        const visibleRows = Array.from(document.querySelectorAll('#rateTableBody tr')).filter(
+            row => row.style.display !== 'none'
+        );
+        
+        const visibleChecked = visibleRows.every(row => {
+            const index = parseInt(row.dataset.index);
+            return this.selectedItems.has(index);
+        });
+        
+        selectAllCheckbox.checked = visibleChecked && visibleRows.length > 0;
+    }
+    
+    // Delete all selected items
+    async deleteSelectedItems() {
+        if (this.selectedItems.size === 0) return;
+        
+        Swal.fire({
+            title: "Are you sure?",
+            text: `This will permanently delete ${this.selectedItems.size} selected entries.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, delete them!",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    // Convert Set to Array and sort in descending order to avoid index shifting issues
+                    const selectedIndices = Array.from(this.selectedItems).sort((a, b) => b - a);
+                    
+                    // Delete items one by one, starting from the highest index
+                    for (const index of selectedIndices) {
+                        const item = this.rateData[index];
+                        if (!item) continue;
+                        
+                        // Only try server delete if we have an ID
+                        if (item.id) {
+                            const response = await fetch(`${this.baseUrl}${this.endpoints.delete}${item.id}`, {
+                                method: "DELETE",
+                            });
+                            
+                            if (!response.ok) {
+                                throw new Error(`Server returned ${response.status}`);
+                            }
+                        }
+                        
+                        // Remove from local data
+                        this.rateData.splice(index, 1);
+                    }
+                    
+                    // If we have more data, sync with server
+                    if (this.rateData.length > 0) {
+                        await this.saveToServer();
+                    } else {
+                        this.saveToLocalStorage();
+                    }
+                    
+                    // Clear selection and update UI
+                    this.selectedItems.clear();
+                    this.updateDeleteButtonState();
+                    this.renderTable();
+                    this.renderPagination();
+                    
+                    Swal.fire("Deleted!", "The selected entries have been deleted.", "success").then(() => {
+                        // Focus on the search input after deletion
+                        setTimeout(() => {
+                            const searchInput = document.getElementById('rateSearchInput');
+                            if (searchInput) {
+                                searchInput.focus();
+                            }
+                        }, 100);
+                    });
+                } catch (error) {
+                    console.error("Error deleting entries:", error);
+                    Swal.fire("Error", "Failed to delete the entries.", "error");
+                }
+            }
+        });
+    }
+    
+    // Render pagination controls
+    renderPagination() {
+        const container = document.getElementById('paginationContainer');
+        if (!container) return;
+        
+        // Get filtered data based on search
+        const searchTerm = document.getElementById('rateSearchInput')?.value?.toLowerCase() || '';
+        const filteredData = this.rateData.filter(item => 
+            item.type.toLowerCase().includes(searchTerm)
+        );
+        
+        const totalPages = Math.ceil(filteredData.length / this.itemsPerPage);
+        
+        // If only one page or no data, hide pagination
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+        
+        // Ensure current page is valid
+        if (this.currentPage > totalPages) {
+            this.currentPage = totalPages;
+        }
+        
+        // Create pagination HTML
+        let paginationHTML = '<ul class="pagination">';
+        
+        // Previous button
+        paginationHTML += `
+            <li class="pagination-item">
+                <a class="pagination-link ${this.currentPage === 1 ? 'disabled' : ''}" 
+                   ${this.currentPage === 1 ? '' : 'onclick="rateManager.goToPage(' + (this.currentPage - 1) + ')"'}>
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+        `;
+        
+        // Page numbers
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        // Adjust start page if we're near the end
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+        
+        // First page
+        if (startPage > 1) {
+            paginationHTML += `
+                <li class="pagination-item">
+                    <a class="pagination-link" onclick="rateManager.goToPage(1)">1</a>
+                </li>
+            `;
+            
+            if (startPage > 2) {
+                paginationHTML += `
+                    <li class="pagination-item">
+                        <span class="pagination-link disabled">...</span>
+                    </li>
+                `;
+            }
+        }
+        
+        // Page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            paginationHTML += `
+                <li class="pagination-item">
+                    <a class="pagination-link ${i === this.currentPage ? 'active' : ''}" 
+                       onclick="rateManager.goToPage(${i})">${i}</a>
+                </li>
+            `;
+        }
+        
+        // Last page
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                paginationHTML += `
+                    <li class="pagination-item">
+                        <span class="pagination-link disabled">...</span>
+                    </li>
+                `;
+            }
+            
+            paginationHTML += `
+                <li class="pagination-item">
+                    <a class="pagination-link" onclick="rateManager.goToPage(${totalPages})">${totalPages}</a>
+                </li>
+            `;
+        }
+        
+        // Next button
+        paginationHTML += `
+            <li class="pagination-item">
+                <a class="pagination-link ${this.currentPage === totalPages ? 'disabled' : ''}" 
+                   ${this.currentPage === totalPages ? '' : 'onclick="rateManager.goToPage(' + (this.currentPage + 1) + ')"'}>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        `;
+        
+        paginationHTML += '</ul>';
+        container.innerHTML = paginationHTML;
+    }
+    
+    // Go to a specific page
+    goToPage(page) {
+        this.currentPage = page;
+        this.renderTable();
+        this.renderPagination();
+        
+        // Scroll to the top of the table
+        const tableWrapper = document.querySelector('.table-wrapper');
+        if (tableWrapper) {
+            tableWrapper.scrollTop = 0;
         }
     }
     
@@ -47,16 +324,16 @@ class RateManager {
     // Filter the rate table based on search input
     filterRateTable(searchTerm) {
         searchTerm = searchTerm.toLowerCase();
-        const rows = document.querySelectorAll('#rateTableBody tr');
         
-        rows.forEach(row => {
-            const vehicleType = row.cells[0].textContent.toLowerCase();
-            if (vehicleType.includes(searchTerm)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
+        // Reset to first page when searching
+        this.currentPage = 1;
+        
+        // Re-render table and pagination with the filter applied
+        this.renderTable();
+        this.renderPagination();
+        
+        // Update selection UI
+        this.updateSelectAllCheckbox();
     }
     
     // Fetch vehicle types from server
@@ -227,42 +504,80 @@ class RateManager {
     checkEmptyState() {
         const table = document.querySelector('.rate-table');
         const noDataMessage = document.getElementById('noDataMessage');
+        const paginationContainer = document.getElementById('paginationContainer');
         
-        if (this.rateData.length === 0) {
-            // Show empty state message and hide table
+        // Get filtered data based on search
+        const searchTerm = document.getElementById('rateSearchInput')?.value?.toLowerCase() || '';
+        const filteredData = this.rateData.filter(item => 
+            item.type.toLowerCase().includes(searchTerm)
+        );
+        
+        if (filteredData.length === 0) {
+            // Show empty state message and hide table and pagination
             if (table) table.style.display = 'none';
             if (noDataMessage) noDataMessage.classList.add('show');
+            if (paginationContainer) paginationContainer.style.display = 'none';
         } else {
             // Show table and hide empty state message
             if (table) table.style.display = 'table';
             if (noDataMessage) noDataMessage.classList.remove('show');
+            if (paginationContainer) paginationContainer.style.display = 'flex';
         }
     }
 
-    // Render table rows based on rateData
+    // Render table rows based on rateData with pagination
     renderTable(highlight = false) {
         const tbody = document.getElementById('rateTableBody');
         if (!Array.isArray(this.rateData)) {
             this.rateData = [];
         }
-        tbody.innerHTML = this.rateData.map((rate, index) => `
-            <tr data-index="${index}" ${highlight ? 'class="table-warning"' : ''} data-id="${rate.id || ''}">
-                <td>${rate.type}</td>
-                <td class="rate-value">${this.formatAmount(rate.cdCompRate)}</td>
-                <td class="rate-value">${this.formatAmount(rate.cdLorryRate)}</td>
-                <td class="rate-value">${this.formatAmount(rate.waitingCompRate)}</td>
-                <td class="rate-value">${this.formatAmount(rate.waitingLorryRate)}</td>
-                <td class="actions">
-                    <button onclick="rateManager.editRow(${index})" class="btn-action btn-edit" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button onclick="rateManager.deleteRow(${index})" class="btn-action btn-delete" title="Delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        
+        // Get filtered data based on search
+        const searchTerm = document.getElementById('rateSearchInput')?.value?.toLowerCase() || '';
+        const filteredData = this.rateData.filter(item => 
+            item.type.toLowerCase().includes(searchTerm)
+        );
+        
+        // Calculate pagination
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = Math.min(startIndex + this.itemsPerPage, filteredData.length);
+        const paginatedData = filteredData.slice(startIndex, endIndex);
+        
+        // Render table rows
+        tbody.innerHTML = paginatedData.map((rate, paginatedIndex) => {
+            // Find the original index in the full data array
+            const originalIndex = this.rateData.findIndex(item => 
+                item === rate || (item.id && rate.id && item.id === rate.id)
+            );
+            
+            const isSelected = this.selectedItems.has(originalIndex);
+            
+            return `
+                <tr data-index="${originalIndex}" ${highlight ? 'class="table-warning"' : ''} data-id="${rate.id || ''}">
+                    <td class="select-column">
+                        <input type="checkbox" ${isSelected ? 'checked' : ''} 
+                               onchange="rateManager.toggleItemSelection(${originalIndex})">
+                    </td>
+                    <td>${rate.type}</td>
+                    <td class="rate-value">${this.formatAmount(rate.cdCompRate)}</td>
+                    <td class="rate-value">${this.formatAmount(rate.cdLorryRate)}</td>
+                    <td class="rate-value">${this.formatAmount(rate.waitingCompRate)}</td>
+                    <td class="rate-value">${this.formatAmount(rate.waitingLorryRate)}</td>
+                    <td class="actions">
+                        <button onclick="rateManager.editRow(${originalIndex})" class="btn-action btn-edit" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="rateManager.deleteRow(${originalIndex})" class="btn-action btn-delete" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+        
         this.checkEmptyState();
+        this.updateSelectAllCheckbox();
+        this.updateDeleteButtonState();
     }
 
     // Expose a method to add a new rate row
@@ -287,13 +602,20 @@ class RateManager {
         // Make sure the table is visible (not the empty state)
         const table = document.querySelector('.rate-table');
         const noDataMessage = document.getElementById('noDataMessage');
+        const paginationContainer = document.getElementById('paginationContainer');
+        
         if (table && noDataMessage) {
             table.style.display = 'table';
             noDataMessage.classList.remove('show');
+            if (paginationContainer) paginationContainer.style.display = 'flex';
         }
         
-        // Render the table with the new row
+        // Always go to the first page when adding a new rate
+        this.currentPage = 1;
+        
+        // Render the table with the new row and update pagination
         this.renderTable();
+        this.renderPagination();
         
         // Scroll to the top of the table to ensure the new row is visible
         const tableWrapper = document.querySelector('.table-wrapper');
@@ -318,6 +640,7 @@ class RateManager {
         this.originalData = null;
         this.editingRow = null;
         this.renderTable();
+        this.renderPagination();
         
         // Focus on the search input after canceling to prevent focus from going to the Add New Rate button
         setTimeout(() => {
@@ -338,12 +661,14 @@ class RateManager {
         this.originalData = { ...this.rateData[index] };
         this.editingRow = index;
         const cells = row.cells;
-        cells[0].innerHTML = `<input type="text" class="edit-input vehicle-type-input" value="${this.rateData[index].type || ''}" placeholder="Enter Vehicle Type" list="vehicleTypesList" required>`;
-        cells[1].innerHTML = `<input type="number" class="edit-input cdCompRate" value="${this.rateData[index].cdCompRate || ''}" step="0.01" placeholder="Company Rate" required>`;
-        cells[2].innerHTML = `<input type="number" class="edit-input cdLorryRate" value="${this.rateData[index].cdLorryRate || ''}" step="0.01" placeholder="Lorry Rate" required>`;
-        cells[3].innerHTML = `<input type="number" class="edit-input waitingCompRate" value="${this.rateData[index].waitingCompRate || ''}" step="0.01" placeholder="Company Rate" required>`;
-        cells[4].innerHTML = `<input type="number" class="edit-input waitingLorryRate" value="${this.rateData[index].waitingLorryRate || ''}" step="0.01" placeholder="Lorry Rate" required>`;
-        cells[5].innerHTML = `
+        
+        // Keep the checkbox cell as is (cells[0])
+        cells[1].innerHTML = `<input type="text" class="edit-input vehicle-type-input" value="${this.rateData[index].type || ''}" placeholder="Enter Vehicle Type" list="vehicleTypesList" required>`;
+        cells[2].innerHTML = `<input type="number" class="edit-input cdCompRate" value="${this.rateData[index].cdCompRate || ''}" step="0.01" placeholder="Company Rate" required>`;
+        cells[3].innerHTML = `<input type="number" class="edit-input cdLorryRate" value="${this.rateData[index].cdLorryRate || ''}" step="0.01" placeholder="Lorry Rate" required>`;
+        cells[4].innerHTML = `<input type="number" class="edit-input waitingCompRate" value="${this.rateData[index].waitingCompRate || ''}" step="0.01" placeholder="Company Rate" required>`;
+        cells[5].innerHTML = `<input type="number" class="edit-input waitingLorryRate" value="${this.rateData[index].waitingLorryRate || ''}" step="0.01" placeholder="Lorry Rate" required>`;
+        cells[6].innerHTML = `
             <button onclick="rateManager.saveRow(${index})" class="btn-action btn-save" title="Save">
                 <i class="fas fa-check"></i>
             </button>
@@ -429,11 +754,11 @@ class RateManager {
         const inputs = row.querySelectorAll('input');
         const newData = {
             id: this.rateData[index].id || null,
-            type: inputs[0].value.trim(),
-            cdCompRate: parseFloat(inputs[1].value) || 0,
-            cdLorryRate: parseFloat(inputs[2].value) || 0,
-            waitingCompRate: parseFloat(inputs[3].value) || 0,
-            waitingLorryRate: parseFloat(inputs[4].value) || 0
+            type: inputs[1].value.trim(), // Adjusted for checkbox in first column
+            cdCompRate: parseFloat(inputs[2].value) || 0,
+            cdLorryRate: parseFloat(inputs[3].value) || 0,
+            waitingCompRate: parseFloat(inputs[4].value) || 0,
+            waitingLorryRate: parseFloat(inputs[5].value) || 0
         };
         
         const errors = this.validateRowData(newData);
@@ -459,9 +784,14 @@ class RateManager {
             if (success) {
                 this.editingRow = null;
                 this.renderTable();
+                this.renderPagination();
+                
                 const updatedRow = document.querySelector(`tr[data-index="${index}"]`);
-                updatedRow.classList.add('highlight');
-                setTimeout(() => updatedRow.classList.remove('highlight'), 1500);
+                if (updatedRow) {
+                    updatedRow.classList.add('highlight');
+                    setTimeout(() => updatedRow.classList.remove('highlight'), 1500);
+                }
+                
                 this.showNotification('Rate updated successfully');
                 
                 // Focus on the search input after saving to prevent focus from going to the Add New Rate button
@@ -508,6 +838,22 @@ class RateManager {
                     // Remove from local data 
                     this.rateData.splice(index, 1);
                     
+                    // Remove from selected items if it was selected
+                    if (this.selectedItems.has(index)) {
+                        this.selectedItems.delete(index);
+                    }
+                    
+                    // Update indices in selectedItems set for items after the deleted one
+                    const newSelectedItems = new Set();
+                    this.selectedItems.forEach(selectedIndex => {
+                        if (selectedIndex < index) {
+                            newSelectedItems.add(selectedIndex);
+                        } else if (selectedIndex > index) {
+                            newSelectedItems.add(selectedIndex - 1);
+                        }
+                    });
+                    this.selectedItems = newSelectedItems;
+                    
                     // If we have more data, sync with server
                     if (this.rateData.length > 0) {
                         await this.saveToServer();
@@ -515,7 +861,21 @@ class RateManager {
                         this.saveToLocalStorage();
                     }
                     
+                    // Check if we need to adjust the current page
+                    const searchTerm = document.getElementById('rateSearchInput')?.value?.toLowerCase() || '';
+                    const filteredData = this.rateData.filter(item => 
+                        item.type.toLowerCase().includes(searchTerm)
+                    );
+                    
+                    const totalPages = Math.ceil(filteredData.length / this.itemsPerPage);
+                    if (this.currentPage > totalPages && totalPages > 0) {
+                        this.currentPage = totalPages;
+                    }
+                    
                     this.renderTable();
+                    this.renderPagination();
+                    this.updateDeleteButtonState();
+                    
                     Swal.fire("Deleted!", "The entry has been deleted.", "success").then(() => {
                         // Focus on the search input after deletion to prevent focus from going to the Add New Rate button
                         setTimeout(() => {

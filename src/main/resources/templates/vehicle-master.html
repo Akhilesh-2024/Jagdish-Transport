@@ -162,18 +162,28 @@
 
             <!-- Table Section -->
             <div class="table-section">
-                <!-- Search Bar -->
-                <div class="search-container" style="margin-bottom: 10px;">
-                    <div class="search-box">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="vehicleSearchInput" placeholder="Search vehicles...">
+                <!-- Search Bar and Actions -->
+                <div class="table-controls" style="margin-bottom: 15px;">
+                    <div class="search-container" style="display: inline-block; margin-right: 15px;">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="vehicleSearchInput" placeholder="Search vehicles...">
+                        </div>
+                    </div>
+                    <div class="bulk-actions" style="display: inline-block;">
+                        <button type="button" id="deleteSelectedBtn" class="btn btn-danger" disabled>
+                            <i class="fas fa-trash-alt"></i> Delete Selected
+                        </button>
                     </div>
                 </div>
                 
                 <table id="vehicleTable">
                     <thead>
                         <tr>
-                        	<th>Sr. No.</th>
+                            <th>
+                                <input type="checkbox" id="selectAllVehicles" title="Select All">
+                            </th>
+                            <th>Sr. No.</th>
                             <th>Vehicle Number</th>
                             <th>Actions</th>
                         </tr>
@@ -186,6 +196,11 @@
                         
                     </tbody>
                 </table>
+                
+                <!-- Pagination Container -->
+                <div id="paginationContainer" class="pagination-container" style="margin-top: 20px;">
+                    <!-- Pagination will be rendered by JavaScript -->
+                </div>
             </div>
         </div>
     </div>
@@ -223,6 +238,15 @@
     
     <!-- Form Navigation JS -->
     <script type="text/javascript" src="js/form-navigation.js"></script>
+    
+    <!-- Master Page Navigation JS -->
+    <script type="text/javascript" src="js/form-navigation-master.js"></script>
+    
+    <!-- Master Navigation Test JS -->
+    <script type="text/javascript" src="js/test-master-navigation.js"></script>
+    
+    <!-- Auto Focus JS -->
+    <script type="text/javascript" src="js/auto-focus.js"></script>
 
     </body>
     </html>

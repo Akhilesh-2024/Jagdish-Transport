@@ -43,6 +43,7 @@
     <link rel="stylesheet" href="assets/css/kaiadmin.min.css" />
 	<link rel="stylesheet" href="assets/css/otherRate.css">
 	<link rel="stylesheet" href="assets/css/search-bar.css">
+	<link rel="stylesheet" href="assets/css/otherRate-extensions.css">
     <style>
       .company-name {
         font-family: 'Public Sans', sans-serif;
@@ -149,9 +150,14 @@
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="rateSearchInput" placeholder="Search by vehicle type...">
             </div>
-            <button class="btn-add">
-                Add New Rate
-            </button>
+            <div class="action-buttons">
+                <button class="btn-add">
+                    Add New Rate
+                </button>
+                <button id="deleteSelectedBtn" class="btn-delete-selected" disabled>
+                    <i class="fas fa-trash-alt"></i> Delete Selected
+                </button>
+            </div>
         </div>
     </div>
     
@@ -169,6 +175,9 @@
        <table class="rate-table">
            <thead>
                <tr>
+                   <th rowspan="2" class="select-column">
+                       <input type="checkbox" id="selectAllCheckbox" title="Select All">
+                   </th>
                    <th rowspan="2">Vehicle Type</th>
                    <th colspan="2">C/D/Wt</th>
                    <th colspan="2">Waiting</th>
@@ -183,6 +192,11 @@
            </thead>
            <tbody id="rateTableBody"></tbody>
        </table>
+    </div>
+    
+    <!-- Pagination Container -->
+    <div id="paginationContainer" class="pagination-container">
+        <!-- Pagination will be rendered by JavaScript -->
     </div>
     
     <!-- Removed the button row as the Add New Rate button is now next to the search bar -->

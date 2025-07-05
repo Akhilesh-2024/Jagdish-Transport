@@ -58,6 +58,22 @@ public class LocationService {
         locationRepository.deleteById(id);
     }
     
+    public void deleteMultipleLocations(List<Long> locationIds) {
+        if (locationIds == null || locationIds.isEmpty()) {
+            return;
+        }
+        
+        // Check if all locations exist before deleting any
+        for (Long id : locationIds) {
+            if (!locationRepository.existsById(id)) {
+                throw new RuntimeException("Location not found with id: " + id);
+            }
+        }
+        
+        // Delete all locations
+        locationRepository.deleteAllById(locationIds);
+    }
+    
     public List<Location> searchLocations(String query) {
         if (query == null || query.trim().isEmpty()) {
             return getAllLocations();

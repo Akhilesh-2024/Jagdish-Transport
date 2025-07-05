@@ -67,6 +67,13 @@ public class VehicleMasterController {
         vehicleMasterService.deleteVehicle(id);
     }
     
+    @DeleteMapping("/delete-multiple")
+    @ResponseBody
+    public void deleteMultipleVehicles(@RequestBody List<Long> vehicleIds) {
+        // Delete multiple vehicles from database
+        vehicleMasterService.deleteMultipleVehicles(vehicleIds);
+    }
+    
     @GetMapping("/search")
     @ResponseBody
     public List<VehicleMaster> searchVehicles(String query) {

@@ -81,7 +81,7 @@ function fetchUserProfile() {
             // Update the dropdown email
             const dropdownEmail = document.getElementById('dropdownEmail');
             if (dropdownEmail) {
-                dropdownEmail.textContent = profile.email || 'abc@gmail.com';
+                dropdownEmail.textContent = profile.email || 'admin123@gmail.com';
             }
         })
         .catch(error => {

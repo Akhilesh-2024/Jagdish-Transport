@@ -117,7 +117,7 @@
             color: white;
             font-size: 1rem;
             transition: all 0.2s;
-            margin-bottom: 1rem;
+            margin-bottom: 0.25rem;
         }
 
         input:focus, select:focus {
@@ -125,6 +125,21 @@
             border-color: var(--accent);
             background: rgba(255, 255, 255, 0.08);
             box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        input:invalid {
+            box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+        }
+        
+        .form-text {
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .required {
+            color: var(--danger);
+            margin-left: 2px;
         }
 
         select {

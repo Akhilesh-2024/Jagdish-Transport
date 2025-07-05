@@ -15,8 +15,8 @@ public class DefaultDataInitializer {
     @Bean
     public CommandLineRunner insertDefaultUser(UserCredentialRepository repository, PasswordEncoder passwordEncoder) {
         return args -> {
-            String defaultUsername = "atharva";
-            String defaultPassword = "atharva123";
+            String defaultUsername = "admin";
+            String defaultPassword = "admin123";
 
             if (!repository.existsByUsername(defaultUsername)) {
                 UserCredential user = new UserCredential();

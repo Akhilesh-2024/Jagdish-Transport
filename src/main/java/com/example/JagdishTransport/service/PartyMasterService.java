@@ -24,7 +24,19 @@ public class PartyMasterService {
     }
     
     public PartyMaster addParty(PartyMaster party) {
-        return partyMasterRepository.save(party);
+        // Ensure GST number is not null before saving
+        if (party.getGstNo() == null || party.getGstNo().trim().isEmpty()) {
+            String uniqueGstNo = "NA-" + System.currentTimeMillis() + "-" + Math.round(Math.random() * 1000000);
+            party.setGstNo(uniqueGstNo);
+            System.out.println("Generated unique GST No in service: " + uniqueGstNo);
+        }
+        
+        try {
+            return partyMasterRepository.save(party);
+        } catch (Exception e) {
+            System.err.println("Error in addParty: " + e.getMessage());
+            throw e; // Re-throw to be handled by controller
+        }
     }
     
     public PartyMaster updateParty(Long id, PartyMaster updatedParty) {
@@ -43,6 +55,22 @@ public class PartyMasterService {
         partyMasterRepository.deleteById(id);
     }
     
+    public void deleteMultipleParties(List<Long> partyIds) {
+        if (partyIds == null || partyIds.isEmpty()) {
+            return;
+        }
+        
+        // Check if all parties exist before deleting any
+        for (Long id : partyIds) {
+            if (!partyMasterRepository.existsById(id)) {
+                throw new RuntimeException("Party not found with id: " + id);
+            }
+        }
+        
+        // Delete all parties
+        partyMasterRepository.deleteAllById(partyIds);
+    }
+    
     public PartyMaster getPartyByName(String name) {
         return partyMasterRepository.findByCompanyName(name);
     }
@@ -53,5 +81,44 @@ public class PartyMasterService {
         }
         
         return partyMasterRepository.findByCompanyNameContainingIgnoreCase(query.trim());
+    }
+    
+    // Check if GST number already exists
+    public boolean isGstNoExists(String gstNo) {
+        if (gstNo == null || gstNo.trim().isEmpty()) {
+            System.out.println("GST number is empty, returning false");
+            return false;
+        }
+        
+        String trimmedGstNo = gstNo.trim();
+        System.out.println("Checking if GST number exists in database: " + trimmedGstNo);
+        
+        // First try the repository method
+        boolean exists = partyMasterRepository.existsByGstNo(trimmedGstNo);
+        System.out.println("Repository check result: " + exists);
+        
+        // If that doesn't work, try a manual check
+        if (!exists) {
+            System.out.println("Performing manual check for GST number");
+            List<PartyMaster> allParties = partyMasterRepository.findAll();
+            
+            for (PartyMaster party : allParties) {
+                System.out.println("Comparing with party: " + party.getId() + ", GST: " + party.getGstNo());
+                if (trimmedGstNo.equals(party.getGstNo())) {
+                    System.out.println("Found matching GST number in party ID: " + party.getId());
+                    return true;
+                }
+            }
+        }
+        
+        return exists;
+    }
+    
+    // Get party by GST number
+    public PartyMaster getPartyByGstNo(String gstNo) {
+        if (gstNo == null || gstNo.trim().isEmpty()) {
+            return null;
+        }
+        return partyMasterRepository.findByGstNo(gstNo.trim());
     }
 }

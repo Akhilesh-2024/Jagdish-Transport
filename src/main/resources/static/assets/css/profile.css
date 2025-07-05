@@ -31,6 +31,29 @@
             height: fit-content;
             position: relative;
             border-radius: 20px;
+            padding: 20px;
+        }
+        
+        .nav-back {
+            margin-bottom: 20px;
+        }
+        
+        .back-link {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .back-link i {
+            margin-right: 8px;
+        }
+        
+        .back-link:hover {
+            color: #60a5fa;
+            transform: translateX(-5px);
         }
 
         .notification {

@@ -175,6 +175,28 @@ button {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+#deleteSelectedBtn {
+    background: rgba(239, 68, 68, 0.7);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+#deleteSelectedBtn:disabled {
+    background: rgba(239, 68, 68, 0.3);
+    color: rgba(255, 255, 255, 0.7);
+    cursor: not-allowed;
+}
+
+#deleteSelectedBtn.active {
+    background: rgba(239, 68, 68, 1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#deleteSelectedBtn:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.9);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
 /* Empty State */
 .empty-state {
     display: flex;
@@ -276,6 +298,15 @@ th {
 
 tr:hover td {
     background: rgba(255, 255, 255, 0.05);
+}
+
+/* Style for selected rows */
+tr.selected td {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+tr.selected:hover td {
+    background: rgba(59, 130, 246, 0.15);
 }
 
 /* Notification */
@@ -531,6 +562,132 @@ select[multiple] option:checked {
     background: var(--accent);
     color: white;
 }
+
+/* Party multiselect styling for keyboard navigation */
+.multiselect-container {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+}
+
+.multiselect-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.multiselect-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-select {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-select:hover {
+    background: rgba(59, 130, 246, 0.3);
+}
+
+.multiselect-search {
+    position: relative;
+    flex: 1;
+    margin-left: 10px;
+}
+
+.multiselect-search input {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px 0 30px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
+}
+
+.multiselect-search .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-primary);
+    opacity: 0.6;
+}
+
+.multiselect-dropdown {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.selected-count {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    background: rgba(59, 130, 246, 0.1);
+    border-bottom: 1px solid var(--border);
+}
+
+.multiselect-options {
+    padding: 5px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.party-option {
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.party-option:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.party-option.selected {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.party-option:focus {
+    outline: 2px solid var(--accent);
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.party-option.just-selected {
+    background: var(--accent) !important;
+    color: white;
+    animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.party-option label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+}
+
+.party-option input[type="checkbox"] {
+    margin-right: 10px;
+    height: 16px;
+    width: 16px;
+}
 /* Additional CSS to fix the table row height issues */
 
 /* Set consistent row heights in the table */
@@ -581,6 +738,13 @@ select[multiple] option:checked {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+/* Keyboard navigation active state */
+.keyboard-navigation-active .party-option:focus {
+    outline: 2px solid var(--accent);
+    background: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
 }
 
 /* Fix for the multiselect in editing mode */
