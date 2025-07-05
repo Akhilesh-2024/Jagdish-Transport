@@ -1,8 +1,22 @@
 
+// Global flag to prevent multiple initializations
+let formNavigationInitialized = false;
+
 document.addEventListener('DOMContentLoaded', function() {
-    initFormNavigation();
-    setupTripVoucherNavigation();
-     setupShiftKeyDropdownOpener();
+    if (formNavigationInitialized) return;
+    
+    console.log("🚀 Form Navigation System Loading...");
+    
+    // Small delay to ensure DOM is fully ready
+    setTimeout(() => {
+        initFormNavigation();
+        setupTripVoucherNavigation();
+        setupShiftKeyDropdownOpener();
+        setupMasterPagesKeyboardNavigation();
+        formNavigationInitialized = true;
+        
+        console.log("✅ Form Navigation System Fully Loaded");
+    }, 100);
 });
 
 
@@ -13,6 +27,17 @@ function initFormNavigation() {
             if (event.key === 'Enter') {
                 event.preventDefault();
                 
+                // Special case for Area Master page - if the current element is areaDate
+                if (window.location.href.includes('area-master') && element.id === 'areaDate') {
+                    // Find the submit button and click it
+                    const addAreaBtn = document.getElementById('addAreaBtn');
+                    if (addAreaBtn) {
+                        setTimeout(() => {
+                            addAreaBtn.click();
+                        }, 100);
+                        return;
+                    }
+                }
             
                 const nextElement = findNextFormElement(formElements, index);
                 
@@ -282,6 +307,21 @@ function findNextFormElement(elements, currentIndex) {
         }
     }
     
+    // Special case for Area Master page
+    if (window.location.href.includes('area-master')) {
+        // If current element is areaDate, submit the form
+        if (currentElement && currentElement.id === 'areaDate') {
+            // Find the submit button and click it
+            const addAreaBtn = document.getElementById('addAreaBtn');
+            if (addAreaBtn) {
+                setTimeout(() => {
+                    addAreaBtn.click();
+                }, 100);
+                return null;
+            }
+        }
+    }
+    
     // Look for the next visible and enabled element
     for (let i = currentIndex + 1; i < elements.length; i++) {
         const element = elements[i];
@@ -310,6 +350,506 @@ function findNextFormElement(elements, currentIndex) {
  * @param {Element} element - DOM element to check
  * @returns {boolean} - True if element is visible
  */
+/**
+ * Set up master pages specific keyboard navigation
+ */
+function setupMasterPagesKeyboardNavigation() {
+    // Check if we're on a master page
+    const masterPages = ['fromTo', 'area-master', 'vehicle-type-master', 'party-master', 'vehicle-master'];
+    const currentPage = masterPages.find(page => window.location.href.includes(page));
+    
+    if (!currentPage) return;
+    
+    console.log(`Setting up keyboard navigation for ${currentPage} page`);
+    
+    // Enhanced Enter key handling for master pages
+    const formElements = document.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([readonly]), select, textarea');
+    
+    formElements.forEach((element, index) => {
+        // Remove existing keydown listeners to avoid conflicts
+        element.removeEventListener('keydown', handleKeyDown);
+        
+        // Add new enhanced keydown listener
+        element.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleMasterPageEnterKey(element, currentPage, formElements, index);
+            }
+            
+            if (event.key === 'Backspace' && 
+                ((element.tagName.toLowerCase() === 'input' && element.value === '') || 
+                 (element.tagName.toLowerCase() === 'select' && element.value === '') ||
+                 (element.tagName.toLowerCase() === 'textarea' && element.value === ''))) {
+                
+                handleMasterPageBackspaceKey(element, formElements, index);
+            }
+            
+            // Alt+D for date functionality
+            if (event.altKey && event.key.toLowerCase() === 'd') {
+                event.preventDefault();
+                handleAltDForDate(element);
+            }
+        });
+        
+        // Enhanced focus behavior
+        if (element.tagName.toLowerCase() === 'input' && element.type !== 'date') {
+            element.addEventListener('focus', function() {
+                setTimeout(() => {
+                    this.select();
+                }, 10);
+            });
+        }
+    });
+}
+
+/**
+ * Handle Enter key for master pages
+ */
+function handleMasterPageEnterKey(element, currentPage, allElements, currentIndex) {
+    const isLastElement = currentIndex === allElements.length - 1;
+    
+    // Page-specific logic
+    switch(currentPage) {
+        case 'fromTo':
+            if (element.id === 'location' || isLastElement) {
+                const form = element.closest('form');
+                if (form) {
+                    form.dispatchEvent(new Event('submit'));
+                } else {
+                    // Fallback to button click
+                    const submitBtn = document.querySelector('button[type="submit"], button[onclick*="addLocation"]');
+                    if (submitBtn) submitBtn.click();
+                }
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        case 'area-master':
+            if (element.id === 'areaDate' || isLastElement) {
+                const addAreaBtn = document.getElementById('addAreaBtn');
+                if (addAreaBtn) {
+                    addAreaBtn.click();
+                }
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        case 'vehicle-type-master':
+            if (isLastElement) {
+                const submitBtn = document.querySelector('button[onclick*="addVehicleType"], button[type="submit"]');
+                if (submitBtn) submitBtn.click();
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        case 'party-master':
+            if (element.id === 'address' || isLastElement) {
+                const submitBtn = document.querySelector('button[onclick*="addParty"], button[type="submit"]');
+                if (submitBtn) submitBtn.click();
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        case 'vehicle-master':
+            if (isLastElement) {
+                const submitBtn = document.querySelector('button[onclick*="addVehicle"], button[type="submit"]');
+                if (submitBtn) submitBtn.click();
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        default:
+            if (isLastElement) {
+                // Try to submit the form
+                const form = element.closest('form');
+                if (form) {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+    }
+}
+
+/**
+ * Handle Backspace key for master pages
+ */
+function handleMasterPageBackspaceKey(element, allElements, currentIndex) {
+    let prevIndex = currentIndex - 1;
+    while (prevIndex >= 0) {
+        const prevElement = allElements[prevIndex];
+        
+        if (isElementVisible(prevElement) && !prevElement.disabled) {
+            prevElement.focus();
+            
+            if (prevElement.tagName.toLowerCase() === 'input') {
+                setTimeout(() => {
+                    prevElement.select();
+                }, 10);
+            }
+            
+            if (prevElement.tagName.toLowerCase() === 'select') {
+                setTimeout(() => {
+                    openDropdown(prevElement);
+                }, 50);
+            }
+            
+            break;
+        }
+        
+        prevIndex--;
+    }
+}
+
+/**
+ * Handle Alt+D for date inputs
+ */
+function handleAltDForDate(element) {
+    try {
+        // If current element is a date input, set today's date
+        if (element.type === 'date') {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            element.value = formattedDate;
+            element.dispatchEvent(new Event('change', { bubbles: true }));
+            showDateNotification('Date set to today');
+            return;
+        }
+        
+        // Look for date inputs in the current form/page
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        
+        if (dateInputs.length > 0) {
+            const firstDateInput = dateInputs[0];
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            
+            firstDateInput.value = formattedDate;
+            firstDateInput.focus();
+            firstDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            showDateNotification('Date set to today');
+        }
+    } catch (error) {
+        console.error('Error in Alt+D date functionality:', error);
+        showDateNotification('Error setting date', 'error');
+    }
+}
+
+/**
+ * Navigate to next element
+ */
+function navigateToNextElement(elements, currentIndex) {
+    for (let i = currentIndex + 1; i < elements.length; i++) {
+        const nextElement = elements[i];
+        
+        if (isElementVisible(nextElement) && !nextElement.disabled) {
+            nextElement.focus();
+            
+            if (nextElement.tagName.toLowerCase() === 'input') {
+                setTimeout(() => {
+                    nextElement.select();
+                }, 10);
+            }
+            
+            if (nextElement.tagName.toLowerCase() === 'select') {
+                setTimeout(() => {
+                    openDropdown(nextElement);
+                }, 50);
+            }
+            
+            return;
+        }
+    }
+}
+
+/**
+ * Show date notification
+ */
+function showDateNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#f44336' : '#4CAF50'};
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 10000;
+        font-size: 14px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: opacity 0.3s ease;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 2000);
+}
+
+/**
+ * Set up master pages specific keyboard navigation
+ */
+function setupMasterPagesKeyboardNavigation() {
+    // Check if we're on a master page
+    const masterPages = ['fromTo', 'area-master', 'vehicle-type-master', 'party-master', 'vehicle-master'];
+    const currentPage = masterPages.find(page => window.location.href.includes(page));
+    
+    if (!currentPage) return;
+    
+    console.log(`Setting up keyboard navigation for ${currentPage} page`);
+    
+    // Enhanced Enter key handling for master pages
+    const formElements = document.querySelectorAll('input:not([type="checkbox"]):not([type="radio"]):not([readonly]), select, textarea');
+    
+    formElements.forEach((element, index) => {
+        // Remove existing keydown listeners to avoid conflicts
+        element.removeEventListener('keydown', handleKeyDown);
+        
+        // Add new enhanced keydown listener
+        element.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                handleMasterPageEnterKey(element, currentPage, formElements, index);
+            }
+            
+            if (event.key === 'Backspace' && 
+                ((element.tagName.toLowerCase() === 'input' && element.value === '') || 
+                 (element.tagName.toLowerCase() === 'select' && element.value === '') ||
+                 (element.tagName.toLowerCase() === 'textarea' && element.value === ''))) {
+                
+                handleMasterPageBackspaceKey(element, formElements, index);
+            }
+            
+            // Alt+D for date functionality
+            if (event.altKey && event.key.toLowerCase() === 'd') {
+                event.preventDefault();
+                handleAltDForDate(element);
+            }
+        });
+        
+        // Enhanced focus behavior
+        if (element.tagName.toLowerCase() === 'input' && element.type !== 'date') {
+            element.addEventListener('focus', function() {
+                setTimeout(() => {
+                    this.select();
+                }, 10);
+            });
+        }
+    });
+}
+
+/**
+ * Handle Enter key for master pages
+ */
+function handleMasterPageEnterKey(element, currentPage, allElements, currentIndex) {
+    const isLastElement = currentIndex === allElements.length - 1;
+    
+    // Page-specific logic
+    switch(currentPage) {
+        case 'fromTo':
+            if (element.id === 'location' || isLastElement) {
+                const form = element.closest('form');
+                if (form) {
+                    form.dispatchEvent(new Event('submit'));
+                } else {
+                    // Fallback to button click
+                    const submitBtn = document.querySelector('button[type="submit"], button[onclick*="addLocation"]');
+                    if (submitBtn) submitBtn.click();
+                }
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        case 'area-master':
+            if (element.id === 'areaDate' || isLastElement) {
+                const addAreaBtn = document.getElementById('addAreaBtn');
+                if (addAreaBtn) {
+                    addAreaBtn.click();
+                }
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        case 'vehicle-type-master':
+            if (isLastElement) {
+                const submitBtn = document.querySelector('button[onclick*="addVehicleType"], button[type="submit"]');
+                if (submitBtn) submitBtn.click();
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        case 'party-master':
+            if (element.id === 'address' || isLastElement) {
+                const submitBtn = document.querySelector('button[onclick*="addParty"], button[type="submit"]');
+                if (submitBtn) submitBtn.click();
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        case 'vehicle-master':
+            if (isLastElement) {
+                const submitBtn = document.querySelector('button[onclick*="addVehicle"], button[type="submit"]');
+                if (submitBtn) submitBtn.click();
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+            break;
+            
+        default:
+            if (isLastElement) {
+                // Try to submit the form
+                const form = element.closest('form');
+                if (form) {
+                    form.dispatchEvent(new Event('submit'));
+                }
+            } else {
+                navigateToNextElement(allElements, currentIndex);
+            }
+    }
+}
+
+/**
+ * Handle Backspace key for master pages
+ */
+function handleMasterPageBackspaceKey(element, allElements, currentIndex) {
+    let prevIndex = currentIndex - 1;
+    while (prevIndex >= 0) {
+        const prevElement = allElements[prevIndex];
+        
+        if (isElementVisible(prevElement) && !prevElement.disabled) {
+            prevElement.focus();
+            
+            if (prevElement.tagName.toLowerCase() === 'input') {
+                setTimeout(() => {
+                    prevElement.select();
+                }, 10);
+            }
+            
+            if (prevElement.tagName.toLowerCase() === 'select') {
+                setTimeout(() => {
+                    openDropdown(prevElement);
+                }, 50);
+            }
+            
+            break;
+        }
+        
+        prevIndex--;
+    }
+}
+
+/**
+ * Handle Alt+D for date inputs
+ */
+function handleAltDForDate(element) {
+    try {
+        // If current element is a date input, set today's date
+        if (element.type === 'date') {
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            element.value = formattedDate;
+            element.dispatchEvent(new Event('change', { bubbles: true }));
+            showDateNotification('Date set to today');
+            return;
+        }
+        
+        // Look for date inputs in the current form/page
+        const dateInputs = document.querySelectorAll('input[type="date"]');
+        
+        if (dateInputs.length > 0) {
+            const firstDateInput = dateInputs[0];
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            
+            firstDateInput.value = formattedDate;
+            firstDateInput.focus();
+            firstDateInput.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            showDateNotification('Date set to today');
+        }
+    } catch (error) {
+        console.error('Error in Alt+D date functionality:', error);
+        showDateNotification('Error setting date', 'error');
+    }
+}
+
+/**
+ * Navigate to next element
+ */
+function navigateToNextElement(elements, currentIndex) {
+    for (let i = currentIndex + 1; i < elements.length; i++) {
+        const nextElement = elements[i];
+        
+        if (isElementVisible(nextElement) && !nextElement.disabled) {
+            nextElement.focus();
+            
+            if (nextElement.tagName.toLowerCase() === 'input') {
+                setTimeout(() => {
+                    nextElement.select();
+                }, 10);
+            }
+            
+            if (nextElement.tagName.toLowerCase() === 'select') {
+                setTimeout(() => {
+                    openDropdown(nextElement);
+                }, 50);
+            }
+            
+            return;
+        }
+    }
+}
+
+/**
+ * Show date notification
+ */
+function showDateNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#f44336' : '#4CAF50'};
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        z-index: 10000;
+        font-size: 14px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: opacity 0.3s ease;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 2000);
+}
+
 function isElementVisible(element) {
     // Check if element exists
     if (!element) return false;

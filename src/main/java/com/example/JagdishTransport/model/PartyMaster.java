@@ -19,7 +19,7 @@ public class PartyMaster {
 	 @Column(nullable = false)
 	private String companyName;
 	
-	 @Column(nullable = false, unique = true)
+	 @Column(unique = true)
 	private String gstNo;
 	
 	 @Column(nullable = false)

@@ -12,6 +12,12 @@
     max-width: 300px;
 }
 
+/* Action buttons container */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
 /* Style for the Add New Rate button next to search bar */
 .search-container .btn-add {
     background: var(--accent);

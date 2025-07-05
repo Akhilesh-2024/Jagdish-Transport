@@ -16,6 +16,10 @@ let originalRates = {
 // Global flag to prevent double submission
 let isSubmitting = false;
 
+// Global variables for improved Alt+C functionality
+let focusableElementsCache = null;
+let lastFocusUpdate = 0;
+
 // Function to close the sidebar
 function closeSidebar() {
     // Check if jQuery is available
@@ -218,6 +222,679 @@ function adjustLayoutForSidebar() {
     }
 }
 
+// Improved Alt+C functionality
+function getFocusableElements(forceRefresh = false) {
+    // Cache focusable elements for better performance, refresh every 2 seconds or when forced
+    const now = Date.now();
+    if (!focusableElementsCache || (now - lastFocusUpdate) > 2000 || forceRefresh) {
+        const focusableSelector = 'input:not([disabled]):not([type="hidden"]):not([readonly]), select:not([disabled]), textarea:not([disabled]):not([readonly]), button:not([disabled])';
+        focusableElementsCache = Array.from(document.querySelectorAll(focusableSelector))
+            .filter(el => {
+                const rect = el.getBoundingClientRect();
+                const style = window.getComputedStyle(el);
+                
+                // Skip elements that are not visible
+                if (style.display === 'none' || 
+                    style.visibility === 'hidden' || 
+                    rect.width === 0 || 
+                    rect.height === 0 ||
+                    el.disabled ||
+                    el.tabIndex === -1) {
+                    return false;
+                }
+                
+                // Skip elements inside autocomplete results (they're not part of the main form flow)
+                if (el.closest('.autocomplete-results')) {
+                    return false;
+                }
+                
+                // Skip submit buttons that are not the main submit button
+                if (el.type === 'submit' && !el.classList.contains('tip-btn-add')) {
+                    return false;
+                }
+                
+                return true;
+            })
+            .sort((a, b) => {
+                // Custom sorting for form fields
+                const getFieldOrder = (element) => {
+                    const fieldOrder = [
+                        'billNumber', 'tripDate', 'vehicleNo', 'vehicleType', 'paymentType',
+                        'from', 'to', 'toBeBilled', 'areaName', 'waitingHrs', 'cdwt', 'trips',
+                        'freight', 'companyWaiting', 'companyCDWT', 'khoti', 'hamali', 'extra',
+                        'lorryFreight', 'lorryWaiting', 'lorryCDWT', 'lorryExtra', 'lorryAdvance',
+                        'commissionPercentage', 'lorryAmount'
+                    ];
+                    const index = fieldOrder.indexOf(element.id);
+                    return index === -1 ? 999 : index;
+                };
+                
+                const aOrder = getFieldOrder(a);
+                const bOrder = getFieldOrder(b);
+                
+                if (aOrder !== bOrder) {
+                    return aOrder - bOrder;
+                }
+                
+                // Fallback to DOM order
+                return a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+            });
+        lastFocusUpdate = now;
+        console.log('Focusable elements refreshed:', focusableElementsCache.length, 'elements');
+        console.log('Field order:', focusableElementsCache.map(el => el.id || el.tagName));
+    }
+    return focusableElementsCache;
+}
+
+function saveCurrentFieldValue(element) {
+    if (!element) return false;
+    
+    try {
+        // Basic validation
+        if (element.hasAttribute('required') && !element.value.trim()) {
+            showFeedback('This field is required', 'warning');
+            return false;
+        }
+        
+        // Number validation
+        if (element.type === 'number' && element.value && isNaN(element.value)) {
+            showFeedback('Please enter a valid number', 'warning');
+            return false;
+        }
+        
+        // Email validation
+        if (element.type === 'email' && element.value && !element.value.includes('@')) {
+            showFeedback('Please enter a valid email', 'warning');
+            return false;
+        }
+        
+        // Trigger input event for real-time validation/calculation
+        element.dispatchEvent(new Event('input', { bubbles: true }));
+        
+        // Trigger change event for form handling
+        element.dispatchEvent(new Event('change', { bubbles: true }));
+        
+        // Handle specific field calculations
+        if (element.classList.contains('last-field-in-section')) {
+            if (element.id === 'extra' || element.id === 'serviceTax') {
+                calculateTotalAmount();
+            } else if (element.id === 'lorryExtra' || element.id === 'lorryAdvance') {
+                calculateLorryAmount();
+            }
+        }
+        
+        console.log('Field value saved:', element.id, '=', element.value);
+        return true;
+    } catch (error) {
+        console.error('Error saving field value:', error);
+        return false;
+    }
+}
+
+function closeAutocompleteDropdowns() {
+    try {
+        console.log('Closing autocomplete dropdowns...');
+        
+        // Close all autocomplete results
+        const autocompleteResults = document.querySelectorAll('.autocomplete-results');
+        autocompleteResults.forEach(results => {
+            results.style.display = 'none';
+            results.innerHTML = ''; // Clear the contents too
+            console.log('Closed autocomplete result container');
+        });
+        
+        // Close searchable dropdown results
+        const searchableResults = document.querySelectorAll('.dropdown-results-container');
+        searchableResults.forEach(results => {
+            results.style.display = 'none';
+            console.log('Closed searchable dropdown result container');
+        });
+        
+        // Close any dropdown that might be showing results
+        const dropdownContainers = document.querySelectorAll('[id*="Results"], [class*="results"], [class*="dropdown-menu"]');
+        dropdownContainers.forEach(container => {
+            if (container.style.display !== 'none') {
+                container.style.display = 'none';
+                console.log('Closed dropdown container:', container.id || container.className);
+            }
+        });
+        
+        console.log('Autocomplete dropdowns closed');
+    } catch (error) {
+        console.error('Error closing autocomplete dropdowns:', error);
+    }
+}
+
+// Specific function to close vehicle type dropdown
+function closeVehicleTypeDropdown() {
+    try {
+        // Close any vehicle type specific dropdowns
+        const vehicleTypeField = document.getElementById('vehicleType');
+        if (vehicleTypeField) {
+            // If it's in a wrapper, find the results container
+            const wrapper = vehicleTypeField.closest('.autocomplete-wrapper, .searchable-dropdown-wrapper');
+            if (wrapper) {
+                const resultsContainer = wrapper.querySelector('.autocomplete-results, .dropdown-results-container');
+                if (resultsContainer) {
+                    resultsContainer.style.display = 'none';
+                    console.log('Closed vehicle type dropdown results');
+                }
+            }
+            
+            // Also look for results container as sibling
+            const siblingResults = vehicleTypeField.parentElement.querySelector('.autocomplete-results, .dropdown-results-container');
+            if (siblingResults) {
+                siblingResults.style.display = 'none';
+                console.log('Closed vehicle type sibling results');
+            }
+        }
+    } catch (error) {
+        console.error('Error closing vehicle type dropdown:', error);
+    }
+}
+
+function closeAllDropdowns() {
+    try {
+        console.log('Closing all dropdowns...');
+        
+        // Close autocomplete dropdowns
+        closeAutocompleteDropdowns();
+        
+        // Close vehicle type dropdown specifically
+        closeVehicleTypeDropdown();
+        
+        // Close Bootstrap dropdowns
+        const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+        openDropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show');
+            console.log('Closed Bootstrap dropdown');
+        });
+        
+        // Close any dropdown results containers
+        const dropdownResults = document.querySelectorAll('.dropdown-results-container');
+        dropdownResults.forEach(container => {
+            container.style.display = 'none';
+            console.log('Closed dropdown results container');
+        });
+        
+        // Close searchable dropdown wrappers
+        const searchableDropdowns = document.querySelectorAll('.searchable-dropdown-wrapper.open');
+        searchableDropdowns.forEach(wrapper => {
+            wrapper.classList.remove('open');
+            const resultsContainer = wrapper.querySelector('.dropdown-results-container');
+            if (resultsContainer) {
+                resultsContainer.style.display = 'none';
+            }
+            console.log('Closed searchable dropdown wrapper');
+        });
+        
+        // Close native select dropdowns by blurring them
+        const activeElement = document.activeElement;
+        if (activeElement && activeElement.tagName === 'SELECT') {
+            activeElement.blur();
+            console.log('Blurred SELECT element');
+        }
+        
+        // Close any custom dropdowns
+        const customDropdowns = document.querySelectorAll('.custom-dropdown.open, .searchable-dropdown.open');
+        customDropdowns.forEach(dropdown => {
+            dropdown.classList.remove('open');
+            console.log('Closed custom dropdown');
+        });
+        
+        // Close any visible dropdown menus or containers
+        const visibleDropdowns = document.querySelectorAll('.dropdown-menu, .dropdown-content, .dropdown-list');
+        visibleDropdowns.forEach(dropdown => {
+            if (dropdown.style.display !== 'none') {
+                dropdown.style.display = 'none';
+                console.log('Hid visible dropdown');
+            }
+        });
+        
+        // Force close any dropdown that might be showing
+        const allDropdownContainers = document.querySelectorAll('[class*="dropdown"]:not([class*="dropdown-toggle"])');
+        allDropdownContainers.forEach(container => {
+            if (container.style.display === 'block' || container.classList.contains('show') || container.classList.contains('open')) {
+                container.style.display = 'none';
+                container.classList.remove('show', 'open');
+                console.log('Force closed dropdown container:', container.className);
+            }
+        });
+        
+        console.log('All dropdowns closed');
+    } catch (error) {
+        console.error('Error closing dropdowns:', error);
+    }
+}
+
+function focusNextElement(currentElement, forceRefresh = false) {
+    const focusableElements = getFocusableElements(forceRefresh);
+    const currentIndex = focusableElements.indexOf(currentElement);
+    
+    if (currentIndex === -1) {
+        console.warn('Current element not found in focusable elements, refreshing cache...');
+        // Try again with forced refresh
+        const refreshedElements = getFocusableElements(true);
+        const newIndex = refreshedElements.indexOf(currentElement);
+        
+        if (newIndex === -1) {
+            console.error('Current element still not found after refresh');
+            return false;
+        }
+        
+        // Use the refreshed elements and new index
+        return focusNextElementWithIndex(refreshedElements, newIndex);
+    }
+    
+    return focusNextElementWithIndex(focusableElements, currentIndex);
+}
+
+function focusNextElementWithIndex(focusableElements, currentIndex) {
+    // Close all dropdowns first to ensure clean state
+    closeAllDropdowns();
+    
+    if (currentIndex >= focusableElements.length - 1) {
+        console.log('Already at the last focusable element');
+        // Optionally focus on the submit button or first element
+        const submitButton = document.querySelector('.tip-btn-add, button[type="submit"]');
+        if (submitButton && !submitButton.disabled && !focusableElements.includes(submitButton)) {
+            // Close dropdowns before focusing on submit button too
+            closeAllDropdowns();
+            setTimeout(() => {
+                submitButton.focus();
+                console.log('Focused on submit button');
+            }, 50);
+            return true;
+        }
+        return false;
+    }
+    
+    const nextElement = focusableElements[currentIndex + 1];
+    
+    try {
+        // Small delay to ensure dropdowns are fully closed before focusing
+        setTimeout(() => {
+            try {
+                nextElement.focus();
+                
+                // Auto-select text in input fields for easy replacement
+                if (nextElement.tagName === 'INPUT' && 
+                    ['text', 'number', 'email', 'tel', 'url'].includes(nextElement.type)) {
+                    // Small delay to ensure focus is complete
+                    setTimeout(() => {
+                        try {
+                            nextElement.select();
+                        } catch (e) {
+                            // Some fields might not support select(), ignore the error
+                            console.log('Could not select text in field:', nextElement.id);
+                        }
+                    }, 50);
+                }
+                
+                // Add visual feedback
+                nextElement.style.transition = 'box-shadow 0.2s ease';
+                nextElement.style.boxShadow = '0 0 5px rgba(23, 125, 255, 0.5)';
+                setTimeout(() => {
+                    nextElement.style.boxShadow = '';
+                }, 1000);
+                
+                console.log('Focused on next element:', nextElement.id || nextElement.tagName);
+            } catch (innerError) {
+                console.error('Error in delayed focus:', innerError);
+            }
+        }, 100); // Increased delay to 100ms for better dropdown closing
+        
+        return true;
+    } catch (error) {
+        console.error('Error focusing next element:', error);
+        return false;
+    }
+}
+
+function handleAltCShortcut() {
+    const activeElement = document.activeElement;
+    
+    if (!activeElement) {
+        console.log('No active element found, focusing on first input');
+        const focusableElements = getFocusableElements(true); // Force refresh
+        if (focusableElements.length > 0) {
+            focusableElements[0].focus();
+            showFeedback('Focused on first field', 'info');
+        } else {
+            showFeedback('No focusable elements found', 'warning');
+        }
+        return;
+    }
+    
+    console.log('Processing Alt+C for element:', activeElement.id || activeElement.tagName);
+    
+    // Close any open autocomplete dropdowns first
+    closeAutocompleteDropdowns();
+    
+    // For autocomplete fields, ensure the value is properly set
+    if (activeElement.classList.contains('autocomplete-field')) {
+        console.log('Handling autocomplete field:', activeElement.id, 'value:', activeElement.value);
+        
+        // Trigger input and change events to ensure autocomplete works properly
+        activeElement.dispatchEvent(new Event('input', { bubbles: true }));
+        activeElement.dispatchEvent(new Event('change', { bubbles: true }));
+        
+        // If the field has a value but no corresponding hidden ID field value, 
+        // it might need to be selected from the autocomplete
+        const hiddenField = document.getElementById(activeElement.id + '_id');
+        if (hiddenField && activeElement.value && !hiddenField.value) {
+            console.log('Field has value but no ID, might need autocomplete selection');
+            showFeedback('Value saved, moving to next field', 'success');
+        }
+    }
+    
+    // Save current field value and trigger any necessary events
+    const isValid = saveCurrentFieldValue(activeElement);
+    
+    if (!isValid) {
+        // Don't move to next field if current field is invalid
+        return;
+    }
+    
+    // Provide immediate visual feedback
+    showAltCFeedback(activeElement);
+    
+    // Close any other open dropdowns
+    closeAllDropdowns();
+    
+    // Force refresh the focusable elements cache since DOM might have changed
+    // (especially after adding new items to dropdowns)
+    setTimeout(() => {
+        // Move to next field with forced cache refresh
+        const success = focusNextElement(activeElement, true);
+        if (!success) {
+            console.log('Could not focus next element, staying on current field');
+            showFeedback('Already at last field', 'info');
+        } else {
+            showFeedback('Moved to next field', 'info');
+        }
+    }, 100); // Increased delay to ensure all DOM changes are complete
+}
+
+function showAltCFeedback(element) {
+    // Create a temporary visual feedback element
+    const feedback = document.createElement('div');
+    feedback.className = 'altc-feedback';
+    feedback.innerHTML = '✓ Saved';
+    feedback.style.cssText = `
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #28a745;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: bold;
+        z-index: 1001;
+        pointer-events: none;
+        opacity: 0;
+        transition: all 0.3s ease;
+    `;
+    
+    // Position relative to the element
+    if (element.parentElement.style.position !== 'relative' && element.parentElement.style.position !== 'absolute') {
+        element.parentElement.style.position = 'relative';
+    }
+    
+    element.parentElement.appendChild(feedback);
+    
+    // Animate in
+    setTimeout(() => {
+        feedback.style.opacity = '1';
+        feedback.style.transform = 'translateX(-50%) translateY(-5px)';
+    }, 10);
+    
+    // Remove after animation
+    setTimeout(() => {
+        feedback.style.opacity = '0';
+        setTimeout(() => {
+            if (feedback.parentElement) {
+                feedback.remove();
+            }
+        }, 300);
+    }, 1000);
+}
+
+// Function to verify Alt+C setup
+function verifyAltCSetup() {
+    console.log('=== Alt+C Setup Verification ===');
+    
+    const targetFields = ['vehicleNo', 'vehicleType', 'from', 'to', 'toBeBilled', 'areaName'];
+    const autocompleteFields = document.querySelectorAll('.autocomplete-field');
+    
+    console.log('Total autocomplete fields found:', autocompleteFields.length);
+    console.log('Target fields:', targetFields);
+    
+    targetFields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (element) {
+            console.log(`✓ Field ${fieldId}: found, has autocomplete-field class: ${element.classList.contains('autocomplete-field')}`);
+            
+            // Check if dropdown configuration exists
+            const dropdown = dropdowns.find(d => d.id === fieldId);
+            if (dropdown) {
+                console.log(`  - Dropdown config found: ${dropdown.masterName}`);
+                console.log(`  - Create function: ${dropdown.createFunction ? 'defined' : 'missing'}`);
+            } else {
+                console.log(`  - Dropdown config: missing`);
+            }
+        } else {
+            console.log(`✗ Field ${fieldId}: not found`);
+        }
+    });
+    
+    console.log('=== End Verification ===');
+}
+
+function showFeedback(message, type = 'info') {
+    // Create a toast-like notification
+    const toast = document.createElement('div');
+    toast.className = `feedback-toast feedback-${type}`;
+    toast.textContent = message;
+    
+    const bgColor = type === 'info' ? '#17a2b8' : type === 'warning' ? '#ffc107' : '#28a745';
+    const textColor = type === 'warning' ? '#000' : '#fff';
+    
+    toast.style.cssText = `
+        position: fixed;
+        top: 50px;
+        right: 20px;
+        background: ${bgColor};
+        color: ${textColor};
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 1050;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+    }, 10);
+    
+    // Remove after delay
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 300);
+    }, 2000);
+}
+
+// Dedicated handler for Alt+C keydown events
+function handleAltCKeydown(e) {
+    if (e.altKey && (e.key === 'c' || e.key === 'C')) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('Alt+C pressed on field:', this.id);
+        
+        // Show immediate feedback
+        showFeedback(`Processing field: ${this.id}`, 'info');
+        
+        // Check if this field has a corresponding dropdown creation function
+        const dropdown = dropdowns.find(d => d.id === this.id);
+        if (dropdown && dropdown.createFunction && this.value.trim() === '') {
+            // Only prompt for new entry if the field is empty
+            console.log('Found create function for empty field:', this.id);
+            showFeedback(`Creating new entry for ${this.id}`, 'info');
+            dropdown.createFunction(this);
+        } else if (dropdown && dropdown.createFunction && this.value.trim() !== '') {
+            // Field has a value, ask user what they want to do
+            const choice = confirm(`Field "${this.id}" has a value: "${this.value}"\n\nClick OK to create a new entry, or Cancel to save current value and move to next field.`);
+            if (choice) {
+                console.log('User chose to create new entry for:', this.id);
+                dropdown.createFunction(this);
+            } else {
+                console.log('User chose to save current value and move to next field:', this.id);
+                handleAltCShortcut();
+            }
+        } else {
+            console.log('No create function found, using general handler for:', this.id);
+            showFeedback(`Saving field value and moving to next field`, 'info');
+            // If no specific creation function, use the general Alt+C handler
+            handleAltCShortcut();
+        }
+    }
+}
+
+function initializeAltCEnhancements() {
+    // Initialize Alt+C functionality for form elements
+    const focusableElements = getFocusableElements();
+    
+    // Add special Alt+C handling for autocomplete fields
+    const autocompleteFields = document.querySelectorAll('.autocomplete-field');
+    console.log('Found autocomplete fields:', autocompleteFields.length);
+    
+    autocompleteFields.forEach(field => {
+        console.log('Setting up Alt+C for field:', field.id);
+        
+        // Remove any existing event listeners to avoid duplicates
+        field.removeEventListener('keydown', handleAltCKeydown);
+        
+        // Add the new event listener
+        field.addEventListener('keydown', handleAltCKeydown);
+    });
+    
+    // Add global Alt+C handler for all focusable elements as fallback
+    document.addEventListener('keydown', function(e) {
+        if (e.altKey && (e.key === 'c' || e.key === 'C')) {
+            const activeElement = document.activeElement;
+            
+            // Check if the active element is one of our target fields
+            const targetFields = ['vehicleNo', 'vehicleType', 'from', 'to', 'toBeBilled', 'areaName'];
+            
+            if (activeElement && targetFields.includes(activeElement.id)) {
+                console.log('Global Alt+C handler triggered for:', activeElement.id);
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Check if this field has a corresponding dropdown creation function
+                const dropdown = dropdowns.find(d => d.id === activeElement.id);
+                if (dropdown && dropdown.createFunction) {
+                    console.log('Alt+C pressed on field:', activeElement.id);
+                    dropdown.createFunction(activeElement);
+                } else {
+                    // If no specific creation function, use the general Alt+C handler
+                    handleAltCShortcut();
+                }
+            }
+        }
+    });
+    
+    focusableElements.forEach((element, index) => {
+        // Add title attribute with shortcut hint
+        const currentTitle = element.getAttribute('title') || '';
+        const shortcutHint = 'Press Alt+C to save and move to next field';
+        
+        if (!currentTitle.includes('Alt+C')) {
+            element.setAttribute('title', currentTitle ? `${currentTitle} | ${shortcutHint}` : shortcutHint);
+        }
+        
+        // Add visual indicator on focus
+        element.addEventListener('focus', function() {
+            // Show a subtle indicator that Alt+C is available
+            this.style.position = 'relative';
+            
+            // Remove any existing indicator
+            const existingIndicator = this.parentElement.querySelector('.altc-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+            
+            // Add new indicator
+            const indicator = document.createElement('div');
+            indicator.className = 'altc-indicator';
+            indicator.innerHTML = 'Alt+C';
+            indicator.style.cssText = `
+                position: absolute;
+                top: -20px;
+                right: 0;
+                background: rgba(23, 125, 255, 0.8);
+                color: white;
+                padding: 2px 6px;
+                border-radius: 3px;
+                font-size: 10px;
+                font-weight: bold;
+                z-index: 1000;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            
+            // Position the indicator relative to the parent
+            if (this.parentElement.style.position !== 'relative' && this.parentElement.style.position !== 'absolute') {
+                this.parentElement.style.position = 'relative';
+            }
+            
+            this.parentElement.appendChild(indicator);
+            
+            // Fade in the indicator
+            setTimeout(() => {
+                indicator.style.opacity = '1';
+            }, 100);
+        });
+        
+        element.addEventListener('blur', function() {
+            // Remove the indicator when focus is lost
+            setTimeout(() => {
+                const indicator = this.parentElement.querySelector('.altc-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '0';
+                    setTimeout(() => {
+                        if (indicator.parentElement) {
+                            indicator.remove();
+                        }
+                    }, 300);
+                }
+            }, 100);
+        });
+    });
+    
+    // Keyboard shortcuts functionality is initialized
+    
+    console.log('Alt+C enhancements initialized for', focusableElements.length, 'elements');
+}
+
+// Keyboard shortcuts help functions removed as per user request
+
 document.addEventListener('DOMContentLoaded', function () {
     setupFormHandlers();
     displayCurrentDate();
@@ -231,6 +908,14 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Automatically close the sidebar when Trip Voucher page loads
     closeSidebar();
+    
+    // Initialize improved Alt+C functionality
+    initializeAltCEnhancements();
+    
+    // Add debugging to verify Alt+C setup
+    setTimeout(() => {
+        verifyAltCSetup();
+    }, 1000);
     
     // Add direct event listener for backspace on SR NO field
     const billNumberField = document.getElementById('billNumber');
@@ -272,6 +957,8 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Add global keyboard shortcuts
     document.addEventListener('keydown', function(e) {
+        console.log('Key pressed:', e.key, 'Alt key:', e.altKey, 'Ctrl key:', e.ctrlKey);
+        
         // Handle Backspace key to close dropdowns
         if (e.key === 'Backspace') {
             // Check if there are any open dropdowns
@@ -329,68 +1016,15 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         // Alt+C shortcut to save and move to next field
-        if (e.altKey && e.key === 'c') {
+        if (e.altKey && (e.key === 'c' || e.key === 'C')) {
+            console.log('ALT+C detected!');
             e.preventDefault();
+            e.stopPropagation();
             
-            // Get the current active element
-            const activeElement = document.activeElement;
-            if (!activeElement) return;
-            
-            // Save the current value
-            console.log('Saving field value:', activeElement.value);
-            
-            // Force close any open dropdowns
-            if (activeElement.tagName === 'SELECT') {
-                // First commit the selection
-                activeElement.dispatchEvent(new Event('change', { bubbles: true }));
-                
-                // Then force close the dropdown by removing focus
-                activeElement.blur();
-                
-                // Also close any Bootstrap or custom dropdowns that might be open
-                const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
-                openDropdowns.forEach(dropdown => {
-                    dropdown.classList.remove('show');
-                });
-            }
-            
-            // If it's a form field, submit the value
-            if (activeElement.form) {
-                // Trigger change event to ensure any listeners are notified
-                activeElement.dispatchEvent(new Event('change', { bubbles: true }));
-                
-                // If it's the last field in a section, trigger calculations
-                if (activeElement.classList.contains('last-field-in-section')) {
-                    // Trigger appropriate calculation based on field
-                    if (activeElement.id === 'extra' || activeElement.id === 'serviceTax') {
-                        calculateTotalAmount();
-                    } else if (activeElement.id === 'lorryExtra' || activeElement.id === 'lorryAdvance') {
-                        calculateLorryAmount();
-                    }
-                }
-            }
-            
-            // Find the next focusable element
-            const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-            const allFocusable = Array.from(document.querySelectorAll(focusableElements))
-                .filter(el => !el.disabled && el.style.display !== 'none' && el.style.visibility !== 'hidden');
-            
-            const currentIndex = allFocusable.indexOf(activeElement);
-            if (currentIndex >= 0 && currentIndex < allFocusable.length - 1) {
-                // Small delay to ensure dropdown is fully closed
-                setTimeout(() => {
-                    // Focus the next element
-                    allFocusable[currentIndex + 1].focus();
-                    
-                    // If the next element is an input, select all text for easy replacement
-                    if (allFocusable[currentIndex + 1].tagName === 'INPUT' && 
-                        allFocusable[currentIndex + 1].type !== 'checkbox' && 
-                        allFocusable[currentIndex + 1].type !== 'radio') {
-                        allFocusable[currentIndex + 1].select();
-                    }
-                }, 50);
-            }
+            handleAltCShortcut();
         }
+        
+        // Alt+H shortcut removed as per user request
     });
     
     if (billNumberField) {
@@ -411,7 +1045,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // Add direct event listeners to the lorryAdvance and lorryAmount fields for Enter key
+    
     const lorryAdvanceField = document.getElementById('lorryAdvance');
     const lorryAmountField = document.getElementById('lorryAmount');
     
@@ -3090,9 +3724,6 @@ function setupAltCShortcut() {
         const element = document.getElementById(dropdown.id);
         if (!element) return;
         
-        // Add tooltip class to show Alt+C hint
-        element.classList.add('shortcut-tooltip');
-        
         // Only add the event listener if this is a regular select element
         // (not already enhanced with our searchable dropdown)
         if (element.tagName === 'SELECT' && 
@@ -3106,16 +3737,20 @@ function setupAltCShortcut() {
                 }
             });
         }
-        
-        // Also add a title attribute for browsers that show title on hover
-        element.setAttribute('title', 'Press Alt+C to create a new entry');
     });
 }
 
 // Function to create a new vehicle
-async function createNewVehicle(selectElement) {
+async function createNewVehicle(inputElement) {
     const vehicleNumber = prompt('Enter new Vehicle Number:');
-    if (!vehicleNumber) return;
+    if (!vehicleNumber) {
+        // User cancelled, just save current field and move to next
+        showFeedback('Cancelled, moving to next field', 'info');
+        setTimeout(() => {
+            handleAltCShortcut();
+        }, 100);
+        return;
+    }
     
     try {
         showLoader();
@@ -3138,28 +3773,38 @@ async function createNewVehicle(selectElement) {
         if (response.ok) {
             const newVehicle = await response.json();
             
-            // Add the new option to the dropdown
-            const option = document.createElement('option');
-            option.value = newVehicle.id || vehicleNumber; // Use the ID from the server response if available
-            option.textContent = vehicleNumber;
-            selectElement.appendChild(option);
-            
-            // Select the new option
-            selectElement.value = option.value;
-            
-            // Set the hidden field value for the ID
-            const hiddenField = document.getElementById('vehicleNo_id');
-            if (hiddenField) {
-                hiddenField.value = newVehicle.id || vehicleNumber;
-            }
-            
-            // Update the visible input field if using autocomplete
-            const autocompleteField = document.getElementById('vehicleNo');
-            if (autocompleteField && autocompleteField.classList.contains('autocomplete-field')) {
-                autocompleteField.value = vehicleNumber;
+            // Handle both select elements and autocomplete input fields
+            if (inputElement.tagName === 'SELECT') {
+                // Traditional select element
+                const option = document.createElement('option');
+                option.value = newVehicle.id || vehicleNumber;
+                option.textContent = vehicleNumber;
+                inputElement.appendChild(option);
+                inputElement.value = option.value;
+            } else if (inputElement.classList.contains('autocomplete-field')) {
+                // Autocomplete input field
+                inputElement.value = vehicleNumber;
+                
+                // Set the hidden field value for the ID
+                const hiddenField = document.getElementById(inputElement.id + '_id');
+                if (hiddenField) {
+                    hiddenField.value = newVehicle.id || vehicleNumber;
+                }
+                
+                // Trigger change event to update any dependent fields
+                inputElement.dispatchEvent(new Event('change', { bubbles: true }));
             }
             
             showNotification(`New vehicle "${vehicleNumber}" added successfully`, false);
+            
+            // Force refresh the focusable elements cache since DOM has changed
+            getFocusableElements(true);
+            
+            // Move to next field after successful creation
+            setTimeout(() => {
+                focusNextElement(inputElement, true);
+            }, 500);
+            
         } else {
             const errorText = await response.text();
             throw new Error(errorText || 'Failed to add new vehicle');
@@ -3173,9 +3818,16 @@ async function createNewVehicle(selectElement) {
 }
 
 // Function to create a new vehicle type
-async function createNewVehicleType(selectElement) {
+async function createNewVehicleType(inputElement) {
     const vehicleType = prompt('Enter new Vehicle Type:');
-    if (!vehicleType) return;
+    if (!vehicleType) {
+        // User cancelled, just save current field and move to next
+        showFeedback('Cancelled, moving to next field', 'info');
+        setTimeout(() => {
+            handleAltCShortcut();
+        }, 100);
+        return;
+    }
     
     try {
         showLoader();
@@ -3194,28 +3846,37 @@ async function createNewVehicleType(selectElement) {
         if (response.ok) {
             const newVehicleType = await response.json();
             
-            // Add the new option to the dropdown
-            const option = document.createElement('option');
-            option.value = newVehicleType.id || vehicleType; // Use the ID from the server response if available
-            option.textContent = vehicleType;
-            selectElement.appendChild(option);
-            
-            // Select the new option
-            selectElement.value = option.value;
-            
-            // Set the hidden field value for the ID
-            const hiddenField = document.getElementById('vehicleType_id');
-            if (hiddenField) {
-                hiddenField.value = newVehicleType.id || vehicleType;
-            }
-            
-            // Update the visible input field if using autocomplete
-            const autocompleteField = document.getElementById('vehicleType');
-            if (autocompleteField && autocompleteField.classList.contains('autocomplete-field')) {
-                autocompleteField.value = vehicleType;
+            // Handle both select elements and autocomplete input fields
+            if (inputElement.tagName === 'SELECT') {
+                // Traditional select element
+                const option = document.createElement('option');
+                option.value = newVehicleType.id || vehicleType;
+                option.textContent = vehicleType;
+                inputElement.appendChild(option);
+                inputElement.value = option.value;
+            } else if (inputElement.classList.contains('autocomplete-field')) {
+                // Autocomplete input field
+                inputElement.value = vehicleType;
+                
+                // Set the hidden field value for the ID
+                const hiddenField = document.getElementById(inputElement.id + '_id');
+                if (hiddenField) {
+                    hiddenField.value = newVehicleType.id || vehicleType;
+                }
+                
+                // Trigger change event to update any dependent fields
+                inputElement.dispatchEvent(new Event('change', { bubbles: true }));
             }
             
             showNotification(`New vehicle type "${vehicleType}" added successfully`, false);
+            
+            // Force refresh the focusable elements cache since DOM has changed
+            getFocusableElements(true);
+            
+            // Move to next field after successful creation
+            setTimeout(() => {
+                focusNextElement(inputElement, true);
+            }, 500);
         } else {
             const errorText = await response.text();
             throw new Error(errorText || 'Failed to add new vehicle type');
@@ -3232,7 +3893,14 @@ async function createNewVehicleType(selectElement) {
 async function createNewLocation(selectElement) {
     const locationType = selectElement.id === 'from' ? 'From' : 'To';
     const locationName = prompt(`Enter new ${locationType} Location:`);
-    if (!locationName) return;
+    if (!locationName) {
+        // User cancelled, just save current field and move to next
+        showFeedback('Cancelled, moving to next field', 'info');
+        setTimeout(() => {
+            handleAltCShortcut();
+        }, 100);
+        return;
+    }
     
     try {
         showLoader();
@@ -3297,6 +3965,14 @@ async function createNewLocation(selectElement) {
             selectElement.dispatchEvent(event);
             
             showNotification(`New ${locationType} location "${locationName}" added successfully`, false);
+            
+            // Force refresh the focusable elements cache since DOM has changed
+            getFocusableElements(true);
+            
+            // Move to next field after successful creation
+            setTimeout(() => {
+                focusNextElement(selectElement, true);
+            }, 500);
         } else {
             const errorText = await response.text();
             throw new Error(errorText || `Failed to add new ${locationType} location`);
@@ -3368,6 +4044,14 @@ async function createNewParty(selectElement) {
             }
             
             showNotification(`New party "${partyName}" added successfully`, false);
+            
+            // Force refresh the focusable elements cache since DOM has changed
+            getFocusableElements(true);
+            
+            // Move to next field after successful creation
+            setTimeout(() => {
+                focusNextElement(selectElement, true);
+            }, 500);
         } else {
             const errorText = await response.text();
             throw new Error(errorText || 'Failed to add new party');
@@ -3381,8 +4065,11 @@ async function createNewParty(selectElement) {
 }
 
 // Function to create a new area
-async function createNewArea(selectElement) {
+async function createNewArea(element) {
+    // Determine if this is a select element or an autocomplete input
+    const isAutocomplete = element.classList.contains('autocomplete-field');
     const areaName = prompt('Enter new Area Name:');
+    
     if (!areaName) return;
     
     try {
@@ -3438,25 +4125,40 @@ async function createNewArea(selectElement) {
             const newArea = await response.json();
             console.log('Area created successfully:', newArea);
             
-            // Add the new option to the dropdown
-            const option = document.createElement('option');
-            option.value = newArea.id || areaName; // Use the ID from the server response if available
-            option.textContent = areaName;
-            selectElement.appendChild(option);
-            
-            // Select the new option
-            selectElement.value = option.value;
-            
-            // Set the hidden field value for the ID
-            const hiddenField = document.getElementById('areaName_id');
-            if (hiddenField) {
-                hiddenField.value = newArea.id || areaName;
-            }
-            
-            // Update the visible input field if using autocomplete
-            const autocompleteField = document.getElementById('areaName');
-            if (autocompleteField && autocompleteField.classList.contains('autocomplete-field')) {
-                autocompleteField.value = areaName;
+            if (isAutocomplete) {
+                // For autocomplete input fields
+                element.value = areaName;
+                
+                // Set the hidden field value for the ID
+                const hiddenField = document.getElementById('areaName_id');
+                if (hiddenField) {
+                    hiddenField.value = newArea.id || areaName;
+                }
+                
+                // Close any open autocomplete results
+                closeAutocompleteDropdowns();
+            } else {
+                // For traditional select elements
+                const option = document.createElement('option');
+                option.value = newArea.id || areaName;
+                option.textContent = areaName;
+                element.appendChild(option);
+                element.value = option.value;
+                
+                // If this is an enhanced dropdown, update the search input
+                const wrapper = element.closest('.searchable-dropdown-wrapper');
+                if (wrapper) {
+                    const searchInput = wrapper.querySelector('.dropdown-search-input');
+                    if (searchInput) {
+                        searchInput.value = areaName;
+                    }
+                    
+                    // Hide any open results container
+                    const resultsContainer = wrapper.querySelector('.dropdown-results-container');
+                    if (resultsContainer) {
+                        resultsContainer.style.display = 'none';
+                    }
+                }
             }
             
             // If we're in the trip voucher form, try to fetch freight rates
@@ -3464,7 +4166,22 @@ async function createNewArea(selectElement) {
                 fetchFreightRates();
             }
             
+            // Trigger change event to update any dependent fields
+            element.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            // Show success notification
             showNotification(`New area "${areaName}" added successfully`, false);
+            
+            // Provide visual feedback
+            showAltCFeedback(element);
+            
+            // Force refresh the focusable elements cache since DOM has changed
+            getFocusableElements(true);
+            
+            // Move to next field after successful creation
+            setTimeout(() => {
+                focusNextElement(element, true);
+            }, 300);
 
 /**
  * Function to convert a regular dropdown to an enhanced searchable input field
@@ -3509,8 +4226,6 @@ function makeDropdownSearchable(selectId) {
     searchInput.style.borderRadius = '4px';
     searchInput.autocomplete = 'off'; // Disable browser autocomplete
     searchInput.setAttribute('data-original-select', selectId); // Store the original select ID
-    searchInput.classList.add('shortcut-tooltip'); // Add tooltip class for Alt+C hint
-    searchInput.setAttribute('title', 'Press Alt+C to create a new entry'); // Add title attribute for tooltip
     
     // Add event listener to automatically open dropdown when focused via Enter key
     searchInput.addEventListener('focus', function(e) {

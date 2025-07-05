@@ -160,58 +160,42 @@
 
             <!-- Table Section -->
             <div class="table-section">
-                <!-- Search Bar -->
-                <div class="search-container" style="margin-bottom: 10px;">
-                    <div class="search-box">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="vehicleTypeSearchInput" placeholder="Search vehicle types...">
+                <!-- Search Bar and Actions -->
+                <div class="table-controls" style="margin-bottom: 15px;">
+                    <div class="search-container" style="display: inline-block; margin-right: 15px;">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="vehicleTypeSearchInput" placeholder="Search vehicle types...">
+                        </div>
+                    </div>
+                    <div class="bulk-actions" style="display: inline-block;">
+                        <button type="button" id="deleteSelectedBtn" class="btn btn-danger" disabled>
+                            <i class="fas fa-trash-alt"></i> Delete Selected
+                        </button>
                     </div>
                 </div>
                 
                 <table id="vehicleTypeTable">
                     <thead>
                         <tr>
+                            <th>
+                                <input type="checkbox" id="selectAllVehicleTypes" title="Select All">
+                            </th>
+                            <th>Sr. No.</th>
                             <th>Vehicle Type</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Sample data for demonstration -->
-                        <tr>
-                           
-                            <td>
-                                <button onclick="editVehicleType(1)" class="btn-icon btn-edit" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="deleteVehicleType(1)" class="btn-icon btn-delete" title="Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            
-                            <td>
-                                <button onclick="editVehicleType(2)" class="btn-icon btn-edit" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="deleteVehicleType(2)" class="btn-icon btn-delete" title="Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                          
-                            <td>
-                                <button onclick="editVehicleType(3)" class="btn-icon btn-edit" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button onclick="deleteVehicleType(3)" class="btn-icon btn-delete" title="Delete">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        <!-- Data will be inserted dynamically -->
                     </tbody>
                 </table>
+                
+                <!-- Pagination Container -->
+                <div id="paginationContainer" class="pagination-container" style="margin-top: 20px;">
+                    <!-- Pagination will be rendered by JavaScript -->
+                </div>
+            </div>
 
                 <!-- Empty state (hidden by default) -->
                 <div id="emptyState" class="empty-state">
@@ -255,6 +239,15 @@
     
     <!-- Form Navigation JS -->
     <script type="text/javascript" src="js/form-navigation.js"></script>
+    
+    <!-- Master Page Navigation JS -->
+    <script type="text/javascript" src="js/form-navigation-master.js"></script>
+    
+    <!-- Master Navigation Test JS -->
+    <script type="text/javascript" src="js/test-master-navigation.js"></script>
+    
+    <!-- Auto Focus JS -->
+    <script type="text/javascript" src="js/auto-focus.js"></script>
 
     </body>
     </html>

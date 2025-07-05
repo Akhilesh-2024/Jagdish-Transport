@@ -11,6 +11,7 @@ import com.example.JagdishTransport.service.UserProfileService;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,8 @@ public class UserCredentialController {
     @Autowired
     private UserProfileService userProfileService;
     
-    private static final String DEFAULT_EMAIL = "abc@gmail.com";
+    @Value("${DEFAULT_EMAIL:phone.lover0123@gmail.com}")
+    private String DEFAULT_EMAIL;
 
     @Autowired
     public UserCredentialController(UserCredentialRepository credentialRepository, UserCredentialService service) {

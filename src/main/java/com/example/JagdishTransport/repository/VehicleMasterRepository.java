@@ -15,6 +15,12 @@ public interface VehicleMasterRepository extends JpaRepository<VehicleMaster, Lo
     // Custom method to check if a vehicle number already exists
     boolean existsByVehicleNumberIgnoreCase(String vehicleNumber);
     
+    // Additional method for exact match (for debugging)
+    boolean existsByVehicleNumber(String vehicleNumber);
+    
+    // Custom method to check if a vehicle number exists for a different vehicle (excluding current ID)
+    boolean existsByVehicleNumberIgnoreCaseAndIdNot(String vehicleNumber, Long id);
+    
     // Search method for vehicles
     Page<VehicleMaster> findByVehicleNumberContainingIgnoreCase(String query, Pageable pageable);
     

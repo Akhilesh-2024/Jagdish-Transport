@@ -491,30 +491,18 @@ select {
     opacity: 0.7;
 }
 
-/* Tooltip styles for Alt+C shortcut */
-.shortcut-tooltip {
-    position: relative;
-}
+/* Tooltip styles removed as per user request */
 
-.shortcut-tooltip::after {
-    content: "Press Alt+C to create new entry";
-    position: absolute;
-    top: -30px;
-    right: 0;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-    z-index: 100;
-    white-space: nowrap;
-}
-
-.shortcut-tooltip:focus::after {
-    opacity: 1;
+/* Keyboard shortcut styles with black font color */
+kbd {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000000; /* Black font color as requested */
+    font-family: monospace;
 }
 
 /* Searchable Dropdown Styles */

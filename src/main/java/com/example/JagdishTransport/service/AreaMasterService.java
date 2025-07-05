@@ -66,6 +66,8 @@ public class AreaMasterService {
                 .orElseThrow(() -> new RuntimeException("Area not found"));
 
         existingArea.setAreaName(updatedArea.getAreaName());
+        existingArea.setFromLocation(updatedArea.getFromLocation());
+        existingArea.setToLocation(updatedArea.getToLocation());
         existingArea.setVehicleType(updatedArea.getVehicleType());
         existingArea.setPartyName(updatedArea.getPartyName());
         existingArea.setCompanyRate(updatedArea.getCompanyRate());
@@ -77,6 +79,22 @@ public class AreaMasterService {
     
     public void deleteArea(Long id) {
         areaMasterRepository.deleteById(id);
+    }
+    
+    public void deleteMultipleAreas(List<Long> areaIds) {
+        if (areaIds == null || areaIds.isEmpty()) {
+            return;
+        }
+        
+        // Check if all areas exist before deleting any
+        for (Long id : areaIds) {
+            if (!areaMasterRepository.existsById(id)) {
+                throw new RuntimeException("Area not found with id: " + id);
+            }
+        }
+        
+        // Delete all areas
+        areaMasterRepository.deleteAllById(areaIds);
     }
     
     public List<AreaMaster> searchAreas(String query) {

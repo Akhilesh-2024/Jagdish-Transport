@@ -178,7 +178,7 @@
                 </div>
             </div>
             <div class="multiselect-dropdown">
-                <div class="selected-count" ><span id="selectedCount">0</span> parties selected</div>
+                <div class="selected-count" ><span id="selectedCount">0</span><span id="selectedText"> parties selected</span></div>
                 <div class="multiselect-options" id="partyOptions" >
                     <!-- Party options will be inserted here dynamically -->
                 </div>
@@ -223,17 +223,48 @@
 
             <!-- Table Section -->
             <div id="tableSection" class="table-section" style="display: none;">
-                <!-- Search Bar -->
-                <div class="search-container">
-                    <div class="search-box">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="areaSearchInput" placeholder="Search areas...">
+                <!-- Search Bar and Actions -->
+                <div class="table-controls" style="margin-bottom: 15px;">
+                    <div class="search-container" style="display: inline-block; margin-right: 15px;">
+                        <div class="search-box">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="areaSearchInput" placeholder="Search areas...">
+                        </div>
+                    </div>
+                    <div class="bulk-actions" style="display: inline-block;">
+                        <button type="button" id="deleteSelectedBtn" disabled>
+                            <i class="fas fa-trash-alt"></i> Delete Selected
+                        </button>
                     </div>
                 </div>
                 
                 <div class="table-container">
-                    <!-- Table will be created dynamically by JavaScript -->
-                    <!-- The table structure is now managed by the fetchAreaData function -->
+                    <table id="areaTable">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <input type="checkbox" id="selectAllAreas" title="Select All">
+                                </th>
+                                <th>Sr. No.</th>
+                                <th>From Location</th>
+                                <th>To Location</th>
+                                <th>Vehicle Type</th>
+                                <th>Party Names</th>
+                                <th>Company Rate</th>
+                                <th>Lorry Rate</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination Container -->
+                <div id="paginationContainer" class="pagination-container" style="margin-top: 20px;">
+                    <!-- Pagination will be rendered by JavaScript -->
                 </div>
                 </div>
             </div>
@@ -255,6 +286,9 @@
    	   
 	<script type="text/javascript" src="js/area-master.js"></script>
 	
+	<!-- Custom navigation for area-master page -->
+	<script type="text/javascript" src="js/area-master-navigation.js"></script>
+	
 	<script type="text/javascript" src="js/form-navigation.js"></script>
 	
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -269,6 +303,18 @@
 
     <!-- Kaiadmin JS -->
     <script src="/assets/js/kaiadmin.min.js"></script>
+    
+    <!-- Form Navigation JS -->
+    <script type="text/javascript" src="js/form-navigation.js"></script>
+    
+    <!-- Master Page Navigation JS -->
+    <script type="text/javascript" src="js/form-navigation-master.js"></script>
+    
+    <!-- Master Navigation Test JS -->
+    <script type="text/javascript" src="js/test-master-navigation.js"></script>
+    
+    <!-- Auto Focus JS -->
+    <script type="text/javascript" src="js/auto-focus.js"></script>
 
     </body>
     </html>

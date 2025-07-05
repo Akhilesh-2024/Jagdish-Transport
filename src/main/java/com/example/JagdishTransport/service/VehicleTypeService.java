@@ -57,6 +57,22 @@ public class VehicleTypeService {
         vehicleTypeRepository.deleteById(id);
     }
     
+    public void deleteMultipleVehicleTypes(List<Long> vehicleTypeIds) {
+        if (vehicleTypeIds == null || vehicleTypeIds.isEmpty()) {
+            return;
+        }
+        
+        // Check if all vehicle types exist before deleting any
+        for (Long id : vehicleTypeIds) {
+            if (!vehicleTypeRepository.existsById(id)) {
+                throw new RuntimeException("Vehicle type not found with id: " + id);
+            }
+        }
+        
+        // Delete all vehicle types
+        vehicleTypeRepository.deleteAllById(vehicleTypeIds);
+    }
+    
     public List<VehicleType> searchVehicleTypes(String query) {
         if (query == null || query.trim().isEmpty()) {
             return getAllVehicleTypes();

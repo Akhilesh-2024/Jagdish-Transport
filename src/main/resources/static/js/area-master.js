@@ -3,6 +3,10 @@ let areas = [];
 let editingId = null;
 let vehicleTypes = [];
 let parties = [];  // This will be loaded from backend now
+let selectedAreas = new Set();
+let filteredAreas = [];
+let currentPage = 1;
+const itemsPerPage = 20; // Pagination with 20 items per page
 
 // DOM loaded event
 document.addEventListener('DOMContentLoaded', function() {
@@ -42,11 +46,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Set up delete selected functionality
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    if (deleteSelectedBtn) {
+        // Remove any existing event listeners
+        deleteSelectedBtn.replaceWith(deleteSelectedBtn.cloneNode(true));
+        
+        // Get the fresh reference and add the event listener
+        const freshDeleteBtn = document.getElementById('deleteSelectedBtn');
+        freshDeleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Delete selected button clicked");
+            confirmDeleteSelected();
+        });
+    }
+    
+    // Set up select all checkbox functionality
+    const selectAllCheckbox = document.getElementById('selectAllAreas');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            toggleSelectAll(this.checked);
+        });
+    }
+    
     // No automatic calculation of Lorry Freight Rate - both fields are independent
     
     // Check if empty state element should be shown initially
     checkEmptyState();
+    
+    // Enhanced keyboard navigation for area master
+    setupAreaMasterKeyboardNavigation();
 });
+
+// Enhanced keyboard navigation for area master
+function setupAreaMasterKeyboardNavigation() {
+    // This function is now empty because the keyboard navigation
+    // has been moved to area-master-navigation.js
+    
+    // We keep this function to maintain compatibility with existing code
+    console.log("Area Master keyboard navigation initialized (delegated to area-master-navigation.js)");
+}
 
 // Set up multiselect buttons
 function setupMultiSelectButtons() {
@@ -84,28 +123,41 @@ function filterPartyOptions(searchTerm) {
 // Filter area table based on search input
 function filterAreaTable(searchTerm) {
     searchTerm = searchTerm.toLowerCase();
-    const tableRows = document.querySelectorAll('#areaTable tbody tr');
     
-    tableRows.forEach(row => {
-        const areaName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-        const vehicleType = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-        const partyName = row.querySelector('td:nth-child(4)').textContent.toLowerCase();
-        
-        // Check if any of the fields match the search term
-        if (areaName.includes(searchTerm) || 
-            vehicleType.includes(searchTerm) || 
-            partyName.includes(searchTerm)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
+    if (searchTerm === '') {
+        // If search term is empty, show all areas
+        filteredAreas = [...areas];
+    } else {
+        // Filter areas based on search term
+        filteredAreas = areas.filter(area => {
+            const areaName = area.areaName.toLowerCase();
+            const vehicleType = area.vehicleType.toLowerCase();
+            const partyName = Array.isArray(area.partyName) ? area.partyName[0].toLowerCase() : area.partyName.toLowerCase();
+            
+            return areaName.includes(searchTerm) || 
+                   vehicleType.includes(searchTerm) || 
+                   partyName.includes(searchTerm);
+        });
+    }
+    
+    // Reset to first page when filtering
+    currentPage = 1;
+    
+    // Re-render the table with filtered data
+    renderAreaTable();
 }
 
 // Update the selected count display
 function updateSelectedCount() {
     const selectedCount = document.querySelectorAll('#partyOptions input[type="checkbox"]:checked').length;
-    document.getElementById('selectedCount').textContent = selectedCount;
+    const totalParties = parties.length;
+    
+    // Show "Every Party" if all parties are selected
+    if (selectedCount === totalParties && totalParties > 0) {
+        document.getElementById('selectedCount').textContent = "Every Party";
+    } else {
+        document.getElementById('selectedCount').textContent = selectedCount;
+    }
 }
 
 // No automatic calculation of Lorry Freight Rate - both fields are independent
@@ -117,30 +169,76 @@ function fetchAreaData() {
     // Show loading indicator
     const tableSection = document.getElementById('tableSection');
     if (tableSection) {
+        // Make sure table section is visible during loading
+        tableSection.style.display = 'block';
+        
         // Create a table structure with loading indicator
         tableSection.innerHTML = `
-            <table id="areaTable" class="data-table">
-                <thead>
-                    <tr>
-                        <th>No.</th>
-                        <th>Area Name</th>
-                        <th>Vehicle Type</th>
-                        <th>Party Name</th>
-                        <th>Company Freight Rate</th>
-                        <th>Lorry Freight Rate</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="8" class="loading-cell">
-                            <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading area data...</div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-controls" style="margin-bottom: 15px;">
+                <div class="search-container" style="display: inline-block; margin-right: 15px;">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="areaSearchInput" placeholder="Search areas...">
+                    </div>
+                </div>
+                <div class="bulk-actions" style="display: inline-block;">
+                    <button type="button" id="deleteSelectedBtn" class="btn btn-danger" disabled>
+                        <i class="fas fa-trash-alt"></i> Delete Selected
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="areaTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAllAreas" title="Select All">
+                            </th>
+                            <th>Sr. No.</th>
+                            <th>Area Name</th>
+                            <th>Vehicle Type</th>
+                            <th>Party Name</th>
+                            <th>Company Freight Rate</th>
+                            <th>Lorry Freight Rate</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="9" class="loading-cell">
+                                <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Loading area data...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="paginationContainer" class="pagination-container" style="margin-top: 20px;"></div>
         `;
+        
+        // Re-attach event listeners
+        const searchInput = document.getElementById('areaSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                filterAreaTable(this.value);
+            });
+        }
+        
+        const deleteBtn = document.getElementById('deleteSelectedBtn');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function() {
+                confirmDeleteSelected();
+            });
+        }
+        
+        const selectAll = document.getElementById('selectAllAreas');
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                toggleSelectAll(this.checked);
+            });
+        }
     }
     
     fetch('/area-master/all')
@@ -160,7 +258,7 @@ function fetchAreaData() {
                     id: item.id,
                     areaName: item.areaName,
                     vehicleType: item.vehicleType || '',
-                    partyName: [item.partyName || ''], // Make it an array with single value
+                    partyName: [item.partyName || ''], // Make it an array with single value (could be "Every Party")
                     companyRate: item.companyRate || 0,
                     lorryRate: item.lorryRate || 0,
                     date: item.areaDate || new Date().toISOString().split('T')[0]
@@ -169,6 +267,13 @@ function fetchAreaData() {
             
             // Sort areas alphabetically by area name
             areas.sort((a, b) => a.areaName.localeCompare(b.areaName));
+            
+            // Initialize filtered areas
+            filteredAreas = [...areas];
+            
+            // Reset selection and pagination
+            selectedAreas.clear();
+            currentPage = 1;
             
             // Render area table
             renderAreaTable();
@@ -188,7 +293,7 @@ function fetchAreaData() {
             if (tableBody) {
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="error-cell">
+                        <td colspan="9" class="error-cell">
                             <div class="error-message">
                                 <i class="fas fa-exclamation-triangle"></i> 
                                 Error loading data. Retrying...
@@ -401,6 +506,7 @@ function initializePartyMultiselect() {
     parties.forEach(party => {
         const option = document.createElement('div');
         option.className = 'party-option';
+        option.setAttribute('tabindex', '0'); // Make focusable for keyboard navigation
         
         option.innerHTML = `
             <label>
@@ -426,6 +532,26 @@ function initializePartyMultiselect() {
             // Don't trigger if the click was directly on the checkbox
             if (e.target !== checkbox) {
                 checkbox.checked = !checkbox.checked;
+                
+                // Use a bubbling event to ensure all listeners catch it
+                const changeEvent = new Event('change', { bubbles: true });
+                checkbox.dispatchEvent(changeEvent);
+                
+                // Add a visual indicator that the option was selected
+                option.classList.add('just-selected');
+                setTimeout(() => {
+                    option.classList.remove('just-selected');
+                }, 500);
+                
+                console.log("Party option clicked:", checkbox.value, "Checked:", checkbox.checked);
+            }
+        });
+        
+        // Add keyboard handler for the option
+        option.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                checkbox.checked = !checkbox.checked;
                 checkbox.dispatchEvent(new Event('change'));
             }
         });
@@ -435,6 +561,12 @@ function initializePartyMultiselect() {
     
     // Initialize selected count
     updateSelectedCount();
+    
+    // Trigger an event to notify that party options have been initialized
+    document.dispatchEvent(new CustomEvent('partyOptionsInitialized'));
+    
+    // Make the party options container keyboard navigable
+    partyOptions.setAttribute('tabindex', '-1');
 }
 
 // Get selected parties from multiselect
@@ -453,6 +585,8 @@ function getPartyNameFromEdit(id) {
 function checkEmptyState() {
     const emptyState = document.getElementById('emptyState');
     const tableSection = document.getElementById('tableSection');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    const selectAllCheckbox = document.getElementById('selectAllAreas');
     
     if (!emptyState || !tableSection) {
         console.error("Empty state or table section elements not found!");
@@ -462,17 +596,23 @@ function checkEmptyState() {
     console.log("Checking empty state, areas length:", areas.length);
     
     if (areas.length === 0) {
-        // Show empty state message but keep table visible with its own empty message
+        // Show empty state message
         emptyState.style.display = 'flex';
+        tableSection.style.display = 'none';
         
-        // Make sure the table is still visible but shows an empty message
-        tableSection.style.display = 'block';
-        
-        // The empty message in the table is handled by renderAreaTable
+        // Disable select all and delete buttons
+        if (deleteSelectedBtn) deleteSelectedBtn.disabled = true;
+        if (selectAllCheckbox) selectAllCheckbox.disabled = true;
     } else {
         // Hide empty state and show table with data
         emptyState.style.display = 'none';
         tableSection.style.display = 'block';
+        
+        // Enable select all checkbox
+        if (selectAllCheckbox) selectAllCheckbox.disabled = false;
+        
+        // Update delete button state based on selections
+        updateDeleteSelectedButton();
     }
 }
 
@@ -542,20 +682,25 @@ function addArea() {
         return;
     }
     
-    // Create a separate record for each selected party
-    const savePromises = selectedParties.map(party => {
-        // Create area object for backend with single party
+    // Check if all parties are selected
+    const totalParties = parties.length;
+    const isAllPartiesSelected = selectedParties.length === totalParties;
+    
+    let savePromises;
+    
+    if (isAllPartiesSelected) {
+        // If all parties are selected, create one entry with "Every Party"
         const backendArea = {
             areaName: areaName,
             vehicleType: vehicleType,
-            partyName: party, // Single party name
+            partyName: "Every Party", // Display "Every Party" for all parties
             companyRate: companyRate,
             lorryRate: lorryRate,
             areaDate: areaDate
         };
         
-        // Send POST request to backend for each party
-        return fetch('/area-master/add', {
+        // Send single POST request
+        savePromises = [fetch('/area-master/add', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -564,19 +709,19 @@ function addArea() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Failed to save area for party ${party}: ${response.status}`);
+                throw new Error(`Failed to save area for all parties: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
-            console.log(`Area saved successfully for party ${party}:`, data);
+            console.log(`Area saved successfully for all parties:`, data);
             
-            // Create new area object for frontend with the ID from backend
+            // Create new area object for frontend
             const newArea = {
                 id: data.id,
                 areaName: areaName,
                 vehicleType: vehicleType,
-                partyName: [party], // Keep as array for frontend but with single value
+                partyName: ["Every Party"], // Display "Every Party"
                 companyRate: companyRate,
                 lorryRate: lorryRate,
                 date: areaDate
@@ -585,8 +730,54 @@ function addArea() {
             // Add to areas array
             areas.push(newArea);
             return newArea;
+        })];
+    } else {
+        // Create a separate record for each selected party (existing behavior)
+        savePromises = selectedParties.map(party => {
+            // Create area object for backend with single party
+            const backendArea = {
+                areaName: areaName,
+                vehicleType: vehicleType,
+                partyName: party, // Single party name
+                companyRate: companyRate,
+                lorryRate: lorryRate,
+                areaDate: areaDate
+            };
+            
+            // Send POST request to backend for each party
+            return fetch('/area-master/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(backendArea)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to save area for party ${party}: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(`Area saved successfully for party ${party}:`, data);
+                
+                // Create new area object for frontend with the ID from backend
+                const newArea = {
+                    id: data.id,
+                    areaName: areaName,
+                    vehicleType: vehicleType,
+                    partyName: [party], // Keep as array for frontend but with single value
+                    companyRate: companyRate,
+                    lorryRate: lorryRate,
+                    date: areaDate
+                };
+                
+                // Add to areas array
+                areas.push(newArea);
+                return newArea;
+            });
         });
-    });
+    }
     
     // Process all promises
     Promise.all(savePromises)
@@ -647,6 +838,9 @@ function renderAreaTable() {
             <table id="areaTable" class="data-table">
                 <thead>
                     <tr>
+                        <th>
+                            <input type="checkbox" id="selectAllAreas" title="Select All">
+                        </th>
                         <th>No.</th>
                         <th>Area Name</th>
                         <th>Vehicle Type</th>
@@ -660,6 +854,14 @@ function renderAreaTable() {
                 <tbody></tbody>
             </table>
         `;
+        
+        // Add event listener for select all checkbox
+        const selectAllCheckbox = document.getElementById('selectAllAreas');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                toggleSelectAll(this.checked);
+            });
+        }
     }
     
     const tableBody = document.querySelector('#areaTable tbody');
@@ -675,18 +877,45 @@ function renderAreaTable() {
     if (areas.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="8" class="empty-cell">
+                <td colspan="9" class="empty-cell">
                     No area data available. Add your first area using the form above.
                 </td>
             </tr>
         `;
+        
+        // Hide pagination when no data
+        const paginationContainer = document.getElementById('paginationContainer');
+        if (paginationContainer) {
+            paginationContainer.innerHTML = '';
+        }
+        
+        // Update select all checkbox and delete button
+        updateSelectAllCheckbox();
+        updateDeleteSelectedButton();
+        
         return;
     }
     
-    // Add rows for each area
-    areas.forEach((area, index) => {
+    // Apply filtering if needed
+    filteredAreas = [...areas];
+    
+    // Calculate pagination
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedAreas = filteredAreas.slice(startIndex, endIndex);
+    
+    // Add rows for each area in the current page
+    paginatedAreas.forEach((area, index) => {
         const row = document.createElement('tr');
         row.dataset.id = area.id;
+        
+        const globalIndex = startIndex + index + 1;
+        const isSelected = selectedAreas.has(area.id);
+        
+        // Add selected class to highlight selected rows
+        if (isSelected) {
+            row.classList.add('selected');
+        }
         
         if (editingId === area.id) {
             // Editing mode
@@ -694,7 +923,10 @@ function renderAreaTable() {
             
             // Use a text input with autocomplete for Party Name
             row.innerHTML = `
-                <td>${index + 1}</td>
+                <td>
+                    <input type="checkbox" class="area-checkbox" data-id="${area.id}" ${isSelected ? 'checked' : ''} onchange="toggleAreaSelection(${area.id}, this.checked)">
+                </td>
+                <td>${globalIndex}</td>
                 <td><input type="text" class="edit-input" id="edit-areaName-${area.id}" value="${area.areaName}"></td>
                 <td>
                     <select class="edit-input" id="edit-vehicleType-${area.id}">
@@ -730,12 +962,15 @@ function renderAreaTable() {
             // Normal mode - display single party per row
             // Each area object now has only one party in its partyName array
             row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${area.areaName}</td>
-                <td>${area.vehicleType}</td>
-                <td>${area.partyName[0]}</td>
-                <td>${area.companyRate.toFixed(2)}</td>
-                <td>${area.lorryRate.toFixed(2)}</td>
+                <td>
+                    <input type="checkbox" class="area-checkbox" data-id="${area.id}" ${isSelected ? 'checked' : ''} onchange="toggleAreaSelection(${area.id}, this.checked)">
+                </td>
+                <td>${globalIndex}</td>
+                <td>${area.areaName || ''}</td>
+                <td>${area.vehicleType || ''}</td>
+                <td>${Array.isArray(area.partyName) && area.partyName.length > 0 ? area.partyName[0] : (area.partyName || '')}</td>
+                <td>${(area.companyRate || 0).toFixed(2)}</td>
+                <td>${(area.lorryRate || 0).toFixed(2)}</td>
                 <td>${formatDate(area.date)}</td>
                 <td class="actions">
                     <button class="btn-icon btn-edit" onclick="enableEdit(${area.id})" title="Edit">
@@ -750,6 +985,18 @@ function renderAreaTable() {
         
         tableBody.appendChild(row);
     });
+    
+    // Render pagination
+    renderPagination();
+    
+    // Update select all checkbox state
+    updateSelectAllCheckbox();
+    
+    // Set up delete button event listener
+    setupDeleteButton();
+    
+    // Update delete selected button state
+    updateDeleteSelectedButton();
 }
 
 // Format date for display
@@ -1203,4 +1450,415 @@ function hideNotification() {
     if (notification) {
         notification.classList.remove('show');
     }
+}
+
+// Render pagination
+function renderPagination() {
+    const paginationContainer = document.getElementById('paginationContainer');
+    if (!paginationContainer) return;
+    
+    const totalPages = Math.ceil(filteredAreas.length / itemsPerPage);
+    
+    if (totalPages <= 1) {
+        paginationContainer.innerHTML = '';
+        return;
+    }
+    
+    let paginationHTML = '<nav aria-label="Area pagination"><ul class="pagination justify-content-center">';
+    
+    // Previous button
+    if (currentPage > 1) {
+        paginationHTML += `<li class="page-item">
+            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>`;
+    } else {
+        paginationHTML += `<li class="page-item disabled">
+            <span class="page-link" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </span>
+        </li>`;
+    }
+    
+    // Page numbers
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    
+    // Adjust start page if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    // Add first page and ellipsis if needed
+    if (startPage > 1) {
+        paginationHTML += `<li class="page-item">
+            <a class="page-link" href="#" onclick="changePage(1)">1</a>
+        </li>`;
+        if (startPage > 2) {
+            paginationHTML += `<li class="page-item disabled">
+                <span class="page-link">...</span>
+            </li>`;
+        }
+    }
+    
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+        if (i === currentPage) {
+            paginationHTML += `<li class="page-item active">
+                <span class="page-link">${i}</span>
+            </li>`;
+        } else {
+            paginationHTML += `<li class="page-item">
+                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+            </li>`;
+        }
+    }
+    
+    // Add last page and ellipsis if needed
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            paginationHTML += `<li class="page-item disabled">
+                <span class="page-link">...</span>
+            </li>`;
+        }
+        paginationHTML += `<li class="page-item">
+            <a class="page-link" href="#" onclick="changePage(${totalPages})">${totalPages}</a>
+        </li>`;
+    }
+    
+    // Next button
+    if (currentPage < totalPages) {
+        paginationHTML += `<li class="page-item">
+            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>`;
+    } else {
+        paginationHTML += `<li class="page-item disabled">
+            <span class="page-link" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </span>
+        </li>`;
+    }
+    
+    paginationHTML += '</ul></nav>';
+    
+    // Add pagination info
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, filteredAreas.length);
+    const totalItems = filteredAreas.length;
+    
+    paginationHTML += `<div class="pagination-info text-center mt-2">
+        <small class="text-muted">
+            Showing ${startItem} to ${endItem} of ${totalItems} areas
+        </small>
+    </div>`;
+    
+    paginationContainer.innerHTML = paginationHTML;
+}
+
+// Change page - make it globally accessible
+window.changePage = function(page) {
+    const totalPages = Math.ceil(filteredAreas.length / itemsPerPage);
+    
+    if (page < 1 || page > totalPages) {
+        return;
+    }
+    
+    currentPage = page;
+    renderAreaTable();
+    
+    // Scroll to top of table
+    const tableContainer = document.querySelector('.table-section');
+    if (tableContainer) {
+        tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+// Toggle area selection - make it globally accessible
+window.toggleAreaSelection = function(areaId, isSelected) {
+    console.log(`Toggle area selection: ID=${areaId}, Selected=${isSelected}`);
+    
+    // Make sure areaId is a number
+    areaId = parseInt(areaId);
+    
+    if (isNaN(areaId)) {
+        console.error(`Invalid area ID: ${areaId}`);
+        return;
+    }
+    
+    if (isSelected) {
+        selectedAreas.add(areaId);
+        console.log(`Added area ${areaId} to selection`);
+    } else {
+        selectedAreas.delete(areaId);
+        console.log(`Removed area ${areaId} from selection`);
+    }
+    
+    // Update UI
+    updateSelectAllCheckbox();
+    updateDeleteSelectedButton();
+    
+    // Update row styling
+    const row = document.querySelector(`tr[data-id="${areaId}"]`);
+    if (row) {
+        if (isSelected) {
+            row.classList.add('selected');
+        } else {
+            row.classList.remove('selected');
+        }
+    }
+    
+    console.log(`Current selection: ${Array.from(selectedAreas).join(', ')}`);
+}
+
+// Toggle select all areas - make it globally accessible
+window.toggleSelectAll = function(selectAll) {
+    console.log(`Toggle select all: ${selectAll}`);
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedAreas = filteredAreas.slice(startIndex, endIndex);
+    
+    if (selectAll) {
+        // Add all visible areas to selection
+        paginatedAreas.forEach(area => {
+            if (area && area.id) {
+                selectedAreas.add(area.id);
+                console.log(`Added area ${area.id} to selection`);
+            }
+        });
+    } else {
+        // Remove all visible areas from selection
+        paginatedAreas.forEach(area => {
+            if (area && area.id) {
+                selectedAreas.delete(area.id);
+                console.log(`Removed area ${area.id} from selection`);
+            }
+        });
+    }
+    
+    // Update checkboxes and row styling in the current page
+    const checkboxes = document.querySelectorAll('.area-checkbox');
+    checkboxes.forEach(checkbox => {
+        const areaId = parseInt(checkbox.getAttribute('data-id'));
+        if (!isNaN(areaId)) {
+            checkbox.checked = selectAll;
+            
+            // Update row styling
+            const row = checkbox.closest('tr');
+            if (row) {
+                if (selectAll) {
+                    row.classList.add('selected');
+                } else {
+                    row.classList.remove('selected');
+                }
+            }
+        }
+    });
+    
+    // Update UI
+    updateDeleteSelectedButton();
+    console.log(`Selection after toggle: ${Array.from(selectedAreas).join(', ')}`);
+}
+
+// Update select all checkbox state
+function updateSelectAllCheckbox() {
+    console.log("Updating select all checkbox state");
+    
+    const selectAllCheckbox = document.getElementById('selectAllAreas');
+    if (!selectAllCheckbox) {
+        console.warn("Select all checkbox not found");
+        return;
+    }
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedAreas = filteredAreas.slice(startIndex, endIndex);
+    
+    if (paginatedAreas.length === 0) {
+        console.log("No areas in current page");
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        return;
+    }
+    
+    // Count how many areas on the current page are selected
+    let selectedCount = 0;
+    for (const area of paginatedAreas) {
+        if (area && area.id && selectedAreas.has(area.id)) {
+            selectedCount++;
+        }
+    }
+    
+    console.log(`Selected ${selectedCount} out of ${paginatedAreas.length} areas on current page`);
+    
+    if (selectedCount === 0) {
+        // None selected
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    } else if (selectedCount === paginatedAreas.length) {
+        // All selected
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+    } else {
+        // Some selected
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+    }
+    
+    // Also update the individual checkboxes to match the selection state
+    const checkboxes = document.querySelectorAll('.area-checkbox');
+    checkboxes.forEach(checkbox => {
+        const areaId = parseInt(checkbox.getAttribute('data-id'));
+        if (!isNaN(areaId)) {
+            checkbox.checked = selectedAreas.has(areaId);
+        }
+    });
+}
+
+// Set up delete button event listener
+function setupDeleteButton() {
+    const deleteBtn = document.getElementById('deleteSelectedBtn');
+    if (!deleteBtn) return;
+    
+    // Remove any existing event listeners by cloning and replacing
+    const newDeleteBtn = deleteBtn.cloneNode(true);
+    deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
+    
+    // Add event listener to the new button
+    newDeleteBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log("Delete selected button clicked");
+        confirmDeleteSelected();
+    });
+    
+    // Update button state
+    updateDeleteSelectedButton();
+}
+
+// Update delete selected button state
+function updateDeleteSelectedButton() {
+    const deleteBtn = document.getElementById('deleteSelectedBtn');
+    if (!deleteBtn) return;
+    
+    const selectedCount = selectedAreas.size;
+    if (selectedCount > 0) {
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = `Delete Selected (${selectedCount})`;
+        deleteBtn.classList.add('active');
+    } else {
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Delete Selected';
+        deleteBtn.classList.remove('active');
+    }
+}
+
+// Confirm delete selected areas
+function confirmDeleteSelected() {
+    console.log("confirmDeleteSelected called");
+    console.log("Current selection:", Array.from(selectedAreas));
+    
+    if (selectedAreas.size === 0) {
+        showNotification('No areas selected', 'error');
+        return;
+    }
+    
+    const selectedCount = selectedAreas.size;
+    const message = `Are you sure you want to delete ${selectedCount} selected area${selectedCount > 1 ? 's' : ''}?`;
+    
+    console.log(`Confirming deletion of ${selectedCount} areas`);
+    
+    // Check if SweetAlert is available
+    if (typeof Swal !== 'undefined') {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: message,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: `Yes, delete ${selectedCount > 1 ? 'them' : 'it'}!`
+        }).then((result) => {
+            if (result.isConfirmed) {
+                console.log("User confirmed deletion");
+                deleteSelectedAreas();
+            } else {
+                console.log("User cancelled deletion");
+            }
+        });
+    } else {
+        // Fallback to regular confirm if SweetAlert is not available
+        if (confirm(message)) {
+            console.log("User confirmed deletion (using native confirm)");
+            deleteSelectedAreas();
+        } else {
+            console.log("User cancelled deletion (using native confirm)");
+        }
+    }
+}
+
+// Delete selected areas
+function deleteSelectedAreas() {
+    // Convert Set to Array of IDs
+    const areaIds = Array.from(selectedAreas);
+    
+    if (areaIds.length === 0) {
+        showNotification('No areas selected for deletion', 'error');
+        return;
+    }
+    
+    console.log('Attempting to delete areas with IDs:', areaIds);
+    
+    // Show loading notification
+    showNotification(`Deleting ${areaIds.length} area${areaIds.length > 1 ? 's' : ''}...`, 'info');
+    
+    // Send delete request to server
+    fetch('/area-master/delete-multiple', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(areaIds)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        return response.text().then(text => {
+            // Try to parse as JSON, but handle plain text responses too
+            try {
+                return text ? JSON.parse(text) : {};
+            } catch (e) {
+                return text;
+            }
+        });
+    })
+    .then(data => {
+        console.log('Areas deleted, server response:', data);
+        
+        // Remove deleted areas from local arrays
+        areas = areas.filter(area => !selectedAreas.has(area.id));
+        filteredAreas = filteredAreas.filter(area => !selectedAreas.has(area.id));
+        
+        // Clear selection
+        selectedAreas.clear();
+        
+        // Update UI
+        renderAreaTable();
+        updateSelectAllCheckbox();
+        updateDeleteSelectedButton();
+        
+        // Check empty state
+        checkEmptyState();
+        
+        // Show success notification
+        showNotification(`${areaIds.length} area${areaIds.length > 1 ? 's' : ''} deleted successfully`, 'success');
+    })
+    .catch(error => {
+        console.error('Error deleting areas:', error);
+        showNotification(`Failed to delete areas: ${error.message}`, 'error');
+    });
 }

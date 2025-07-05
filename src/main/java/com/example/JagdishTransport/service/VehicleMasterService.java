@@ -18,10 +18,55 @@ public class VehicleMasterService {
         return vehicleMasterRepository.findAll();
     }
     
-    public VehicleMaster addVehicle(VehicleMaster vehicle) {
-        // Convert to uppercase before saving
-        vehicle.setVehicleNumber(vehicle.getVehicleNumber().toUpperCase());
+    public boolean existsByVehicleNumber(String vehicleNumber) {
+        if (vehicleNumber == null || vehicleNumber.trim().isEmpty()) {
+            return false;
+        }
         
+        // Normalize the input (trim and uppercase)
+        String normalizedInput = vehicleNumber.trim().toUpperCase();
+        
+        // Manual check to ensure accuracy
+        List<VehicleMaster> allVehicles = vehicleMasterRepository.findAll();
+        for (VehicleMaster vehicle : allVehicles) {
+            if (vehicle.getVehicleNumber() != null) {
+                String dbNormalized = vehicle.getVehicleNumber().trim().toUpperCase();
+                if (normalizedInput.equals(dbNormalized)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    public boolean existsByVehicleNumberForUpdate(String vehicleNumber, Long id) {
+        if (vehicleNumber == null || vehicleNumber.trim().isEmpty()) {
+            return false;
+        }
+        
+        String normalizedInput = vehicleNumber.trim().toUpperCase();
+        
+        // Manual check for update (excluding current vehicle)
+        List<VehicleMaster> allVehicles = vehicleMasterRepository.findAll();
+        for (VehicleMaster vehicle : allVehicles) {
+            if (!vehicle.getId().equals(id) && vehicle.getVehicleNumber() != null) {
+                String dbNormalized = vehicle.getVehicleNumber().trim().toUpperCase();
+                if (normalizedInput.equals(dbNormalized)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    public VehicleMaster addVehicle(VehicleMaster vehicle) {
+        // Normalize the vehicle number before saving
+        if (vehicle.getVehicleNumber() != null) {
+            String normalizedNumber = vehicle.getVehicleNumber().trim().toUpperCase();
+            vehicle.setVehicleNumber(normalizedNumber);
+        }
         return vehicleMasterRepository.save(vehicle);
     }
     
@@ -34,8 +79,11 @@ public class VehicleMasterService {
         // Set ID to ensure we're updating the right record
         vehicle.setId(id);
         
-        // Convert to uppercase before saving
-        vehicle.setVehicleNumber(vehicle.getVehicleNumber().toUpperCase());
+        // Normalize the vehicle number before saving
+        if (vehicle.getVehicleNumber() != null) {
+            String normalizedNumber = vehicle.getVehicleNumber().trim().toUpperCase();
+            vehicle.setVehicleNumber(normalizedNumber);
+        }
         
         return vehicleMasterRepository.save(vehicle);
     }
@@ -47,6 +95,22 @@ public class VehicleMasterService {
         }
         
         vehicleMasterRepository.deleteById(id);
+    }
+    
+    public void deleteMultipleVehicles(List<Long> vehicleIds) {
+        if (vehicleIds == null || vehicleIds.isEmpty()) {
+            return;
+        }
+        
+        // Check if all vehicles exist before deleting any
+        for (Long id : vehicleIds) {
+            if (!vehicleMasterRepository.existsById(id)) {
+                throw new RuntimeException("Vehicle not found with id: " + id);
+            }
+        }
+        
+        // Delete all vehicles
+        vehicleMasterRepository.deleteAllById(vehicleIds);
     }
     
     public List<VehicleMaster> searchVehicles(String query) {

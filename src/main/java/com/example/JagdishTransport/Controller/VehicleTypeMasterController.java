@@ -62,6 +62,21 @@ public class VehicleTypeMasterController {
         return ResponseEntity.ok().build();
     }
     
+    @DeleteMapping("/delete-multiple")
+    @ResponseBody
+    public ResponseEntity<String> deleteMultipleVehicleTypes(@RequestBody List<Long> vehicleTypeIds) {
+        try {
+            vehicleTypeService.deleteMultipleVehicleTypes(vehicleTypeIds);
+            int count = vehicleTypeIds.size();
+            String message = count == 1 ? 
+                "1 vehicle type deleted successfully" : 
+                count + " vehicle types deleted successfully";
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    
     @GetMapping("/search")
     @ResponseBody
     public List<VehicleType> searchVehicleTypes(String query) {
