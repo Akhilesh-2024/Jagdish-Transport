@@ -185,3 +185,56 @@ The application uses MySQL with JPA/Hibernate for data persistence. The database
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="MIT License" />
 </p>
 <p align="center">This project is licensed under the MIT License - see the LICENSE file for details.</p>
+=======
+## Screenshots
+
+### Login Page
+![Login Page](img/Login.png)
+*User login page*
+
+### Dashboard
+![Dashboard](img/Dashboard.png)
+*Main dashboard showing key metrics and recent activities*
+
+### Vehicle Statement
+![Vehicle Management](img/vehicalStatement.png)
+*Vehicle registration and management interface*
+
+### Trip Voucher
+![Trip Voucher](img/TripVoucher.png)
+*Trip voucher creation and tracking*
+
+### Trip Voucher table
+![Trip Voucher](img/TripVoucherTable.png)
+*Trip voucher creation and tracking*
+
+### Party Bill
+![Party Bill](img/PartyBill.png)
+*Party bill generation and management*
+
+### Party statement
+![Party Bill](img/PartyStatement.png)
+*Party bill generation and management*
+
+### Vehicle Statement
+![Vehicle Master](img/vehicalStatement.png)
+*Vehicle registration and management interface*
+
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
+
+## Contact
+
+Name: atharvapimparkar1416@gmail.com  
+
+Project Link: https://github.com/Atharva-2510/Jagdish-Transport
